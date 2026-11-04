@@ -19,7 +19,7 @@
     ['D', '星河小区 · 5号楼3单元402室']
   ];
   function freshState() {
-    const initial = { started: false, seen: [], tips: [], excluded: [], selected: null, reasons: [], notes: '', quiz: {}, solved: false, clueStatus: null, stage2Seen: [], stage2Solved: false };
+    const initial = { started: false, seen: [], tips: [], excluded: [], selected: null, reasons: [], notes: '', quiz: {}, solved: false, clueStatus: null, stage2Seen: [], stage2Solved: false, caseClosed: false };
     if (stage2Dev) {
       Object.assign(initial, {
         started: true,
@@ -55,6 +55,7 @@
         state.stage2Seen = stage2References.filter(ref => saved.stage2Seen.includes(ref.panel)).map(ref => ref.panel);
       }
       state.stage2Solved = saved.stage2Solved === true && canSubmitSearch();
+      state.caseClosed = saved.caseClosed === true && state.stage2Solved;
     }
   } catch (_) { /* 浏览器不允许存储时仍可完成本次调查。 */ }
   document.querySelector('#stage2-dev-badge').hidden = !stage2Dev;
@@ -94,7 +95,9 @@
     deskClue.hidden = !stage2Unlocked;
     // The envelope animation already revealed the first clue before stage two began.
     const count = stage2Unlocked ? 1 + state.stage2Seen.length : state.seen.length;
-    const task = stage2Unlocked
+    const task = state.caseClosed
+      ? ['案件已完成', '失踪的红宝石已找回。你可以回看结案报告和侦探笔记。']
+      : stage2Unlocked
       ? [challengeTwo.title, '调查神秘数字的含义，破解红宝石的藏匿地点。']
       : state.clueStatus === 'pending'
       ? ['挑战一完成', '点击「继续调查」，寻找红宝石的下落。']
@@ -114,7 +117,7 @@
       hotspot.hidden = stage2Unlocked !== hotspot.hasAttribute('data-stage-2');
       hotspot.classList.toggle('viewed', state.seen.includes(hotspot.dataset.panel));
     });
-    const reportLabel = stage2Unlocked ? (canSubmitSearch() ? '提交搜查地点' : '搜查地点')
+    const reportLabel = state.caseClosed ? '查看结案报告' : stage2Unlocked ? (canSubmitSearch() ? '提交搜查地点' : '搜查地点')
       : state.clueStatus === 'pending' ? '继续调查' : state.solved ? '回看结案总结' : '提交调查';
     document.querySelector('#report-button').innerHTML = `${reportLabel} <span aria-hidden="true">→</span>`;
   }
@@ -235,8 +238,64 @@
     return `<p>你成功破解了神秘数字编码！</p>
       <p class="notice"><strong>正确地点是：阳光小区 · 5号楼 · 3单元 · 4层02室。</strong></p>
       <p>调查人员已经确定了搜查地点！</p>
-      <div class="actions"><button type="button" class="primary" disabled>查看结案报告</button></div>
-      <p class="modal-muted">结案报告将在后续开放。</p>`;
+      <div class="actions"><button type="button" class="primary" data-action="view-case-resolution">查看结案报告</button></div>`;
+  }
+
+  function rubyRecovery() {
+    return `<div class="recovered-ruby" aria-hidden="true"></div>
+      <p class="recovery-message">失踪的红宝石已成功找回！</p>`;
+  }
+
+  function victory() {
+    return `<p class="victory-subtitle">失踪的红宝石终于回到了博物馆！</p>
+      <p>恭喜你，优秀的小侦探！</p>
+      <p>你成功运用了今天学习的数字编码知识，通过观察、分析与推理，锁定了符合线索的嫌疑人，并破解了红宝石的藏匿地点！</p>
+      <p><strong>在这次调查中，你学会了：</strong></p>
+      <ol class="review-list">
+        <li>认识公民身份号码中不同数字位置的含义。</li>
+        <li>理解邮政编码的用途。</li>
+        <li>根据房屋编码规则确定具体位置。</li>
+        <li>综合运用数字编码知识解决实际问题。</li>
+      </ol>
+      <p>你展现了出色的观察能力、逻辑推理能力和综合应用能力！</p>
+      <p class="victory-finale"><strong>恭喜通关《数字迷案》！</strong></p>
+      <div class="actions">
+        <button type="button" class="primary" data-action="close">返回调查室</button>
+        <button type="button" data-panel="victoryReset">重新开始游戏</button>
+      </div>`;
+  }
+
+  function victoryReset() {
+    return `<p>确定重新开始调查吗？当前游戏进度将被重置。</p>
+      <div class="actions">
+        <button type="button" class="primary" data-action="confirm-victory-reset">确认重新开始</button>
+        <button type="button" data-panel="victory">取消</button>
+      </div>`;
+  }
+
+  async function viewCaseResolution() {
+    if (!state.stage2Solved) return;
+    if (state.caseClosed || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      state.caseClosed = true;
+      openPanel('victory');
+      return;
+    }
+    state.caseClosed = true;
+    openPanel('rubyRecovery');
+    const ruby = body.querySelector('.recovered-ruby');
+    await Promise.allSettled(ruby.getAnimations().map(animation => animation.finished));
+    if (dialog.open && body.contains(ruby)) openPanel('victory');
+  }
+
+  function restartAfterVictory() {
+    state = freshState();
+    if (stage2Dev) {
+      progress();
+      closePanel();
+      return;
+    }
+    try { localStorage.removeItem(key); storageOK = true; } catch (_) { storageOK = false; }
+    openPanel('story', { persist: false });
   }
   function challengeComplete() {
     return `<p class="lead">恭喜你，小侦探！</p>
@@ -276,20 +335,23 @@
   function summary() {
     return `<span class="stamp">调查报告核对完成</span><h3 class="success-title">你找到了最符合信息的重点调查对象：1号。</h3><p>不仅选对人物，也正确解释了三条信息。</p><ol class="review-list"><li><b>性别：</b>第17位是5，为奇数，身份证登记性别为男性。</li><li><b>出生年份：</b>199□ 只能说明出生于1990—1999年，不能确定具体年份。</li><li><b>通讯城市：</b>寄件人邮编610000对应成都。由于两份资料已核实属于同一对象，才能将其与登记通讯城市比对。</li></ol><p class="notice"><b>重点调查对象不等于已经证明有罪。</b>数字编码帮助核对信息，不能单独证明此人实施盗窃。邮编也不能单独证明个人身份或当前所在地。</p><h3>保护个人信息</h3><p>不要公开、上传或向陌生人提供真实身份证号码和证件照片。游戏中的人物和残缺编码都是虚构的。</p><div class="actions"><button data-action="close" class="primary">返回调查室</button><button data-panel="notes">回看学习笔记</button></div>`;
   }
-  const names = { searchLocation:['第二关 · 搜查地点','挑战二 · 确定搜查地点'], searchNotReady:['第二关 · 搜查地点','请先收集完整的编码线索'], searchIncorrect:['第二关 · 再核对一次','还没有找到正确地点！'], searchSuccess:['第二关 · 搜查地点','解码成功！'], codeLibrary:['第二关 · 书架资料','编码资料库'], ...Object.fromEntries(stage2References.map(ref => [ref.panel, ['第二关 · 编码资料库', ref.title]])), challengeComplete:['结案进展','🎉 挑战一完成：成功锁定嫌疑人！'], story:['案件档案','红宝石失踪案'], identity:['证物 A','残缺身份证复印件'], envelope:['证物 B','尚未寄出的信封'], lookup:['资料柜','邮编查询簿'], suspects:['人物核对','六人调查板'], notes:['调查记录','侦探笔记'], report:['最后一步','最终调查报告'], summary:['学习回顾','结案总结'], reset:['重新开始','重新调查这个案件？'] };
-  function openPanel(name) {
+  const names = { rubyRecovery:['案件结案','失踪的红宝石已成功找回！'], victory:['案件结案','🏆 案件侦破成功！'], victoryReset:['重新开始','重新开始游戏'], searchLocation:['第二关 · 搜查地点','挑战二 · 确定搜查地点'], searchNotReady:['第二关 · 搜查地点','请先收集完整的编码线索'], searchIncorrect:['第二关 · 再核对一次','还没有找到正确地点！'], searchSuccess:['第二关 · 搜查地点','解码成功！'], codeLibrary:['第二关 · 书架资料','编码资料库'], ...Object.fromEntries(stage2References.map(ref => [ref.panel, ['第二关 · 编码资料库', ref.title]])), challengeComplete:['结案进展','🎉 挑战一完成：成功锁定嫌疑人！'], story:['案件档案','红宝石失踪案'], identity:['证物 A','残缺身份证复印件'], envelope:['证物 B','尚未寄出的信封'], lookup:['资料柜','邮编查询簿'], suspects:['人物核对','六人调查板'], notes:['调查记录','侦探笔记'], report:['最后一步','最终调查报告'], summary:['学习回顾','结案总结'], reset:['重新开始','重新调查这个案件？'] };
+  function openPanel(name, { persist = true } = {}) {
     if (!names[name]) return;
+    if (['rubyRecovery', 'victory', 'victoryReset'].includes(name) && !state.caseClosed) return;
     const reference = stage2References.find(ref => ref.panel === name);
     if ((reference || name === 'codeLibrary') && state.clueStatus !== 'collected') return;
     if (reference) addUnique(state.stage2Seen, reference.panel);
     if (!dialog.open) returnFocus = document.activeElement;
     currentPanel = name;
+    dialog.dataset.panelName = name;
     if (['identity','envelope','lookup'].includes(name)) addUnique(state.seen,name);
-    save(); progress();
+    if (persist) save();
+    progress();
     const [kicker,title] = names[name];
     document.querySelector('#panel-kicker').textContent = kicker;
     document.querySelector('#panel-title').textContent = title;
-    const renderers = { searchLocation, searchNotReady, searchIncorrect, searchSuccess, codeLibrary, neighborhoodRegister, housingCode, challengeComplete, story, identity, envelope, lookup, suspects, notes, report, summary, reset:()=>`<p>${stage2Dev ? '这会清除当前页面的测试进度，重新进入第二关测试。' : '这会清除当前浏览器中本案的证物记录、排除标记、答案和个人笔记。'}</p><div class="actions"><button class="primary" data-action="confirm-reset">确认重新开始</button><button data-action="close">保留进度</button></div>` };
+    const renderers = { rubyRecovery, victory, victoryReset, searchLocation, searchNotReady, searchIncorrect, searchSuccess, codeLibrary, neighborhoodRegister, housingCode, challengeComplete, story, identity, envelope, lookup, suspects, notes, report, summary, reset:()=>`<p>${stage2Dev ? '这会清除当前页面的测试进度，重新进入第二关测试。' : '这会清除当前浏览器中本案的证物记录、排除标记、答案和个人笔记。'}</p><div class="actions"><button class="primary" data-action="confirm-reset">确认重新开始</button><button data-action="close">保留进度</button></div>` };
     body.innerHTML = renderers[name]();
     body.querySelectorAll('details[data-tip]').forEach(el=>el.addEventListener('toggle',()=>{ if(el.open){addUnique(state.tips,el.dataset.tip);save();} }));
     if (name==='identity') D.quizzes.forEach(q=>{if (Number.isInteger(state.quiz[q.id])) quizFeedback(q,state.quiz[q.id]);});
@@ -302,6 +364,10 @@
   document.querySelector('#close-panel').addEventListener('click',closePanel);
   document.querySelector('#story-button').addEventListener('click',()=>openPanel('story'));
   document.querySelector('#report-button').addEventListener('click', () => {
+    if (state.caseClosed) {
+      openPanel('victory');
+      return;
+    }
     if (state.clueStatus === 'collected') {
       openPanel(state.stage2Solved ? 'searchSuccess' : canSubmitSearch() ? 'searchLocation' : 'searchNotReady');
       return;
@@ -313,6 +379,8 @@
     const panel = event.target.closest('[data-panel]');
     if (panel) { openPanel(panel.dataset.panel); return; }
     const action = event.target.closest('[data-action]')?.dataset.action;
+    if (action === 'view-case-resolution') viewCaseResolution();
+    if (action === 'confirm-victory-reset' && state.caseClosed) restartAfterVictory();
     if (action === 'view-clue') {
       if (state.clueStatus === 'pending') openPanel('challengeComplete');
       else if (state.clueStatus) showClue();
