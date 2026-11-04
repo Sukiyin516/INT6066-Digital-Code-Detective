@@ -16,6 +16,21 @@ main{width:100%;height:100%;max-width:none;margin:0;padding:0;display:grid;place
 .scene-control.primary:hover{background:#f1ce8c}
 .scene-brand{position:absolute;z-index:2;left:50%;top:2.2%;transform:translateX(-50%);display:block;text-align:center;color:#f9e6bd;text-shadow:0 .15cqw .5cqw #000;font-size:1.6cqw;line-height:1.5;letter-spacing:.3cqw;pointer-events:none}
 .scene-brand span{display:block;font-size:.8cqw;letter-spacing:.2cqw}
+.stage2-dev-badge {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+  padding: .15em .65em;
+  border: 1px solid #e1b96e;
+  border-radius: .4em;
+  background: #152a2deb;
+  color: #f8e8c8;
+  font-size: clamp(10px, .9cqw, 14px);
+  white-space: nowrap;
+  pointer-events: none;
+}
 .hotspot{position:absolute;left:var(--x);top:var(--y);transform:translate(-50%,-50%);padding:0;width:3.6cqw;height:3.6cqw;min-width:0;min-height:0;display:grid;place-items:center;gap:0;border-radius:50%;z-index:1;touch-action:manipulation}
 .lens{width:3.1cqw;height:3.1cqw;border:.15cqw solid #ffe0a0;border-radius:50%;background:#1d343bcc;box-shadow:0 0 0 .35cqw #f7bd4c23,0 0 1.6cqw #ffd27caa,0 .2cqw .9cqw #0009}
 .lens:before{width:1.05cqw;height:1.05cqw;left:.67cqw;top:.6cqw;border:.15cqw solid #ffe5ad}

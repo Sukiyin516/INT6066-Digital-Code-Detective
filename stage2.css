@@ -1,0 +1,55 @@
+.hotspot[hidden] {
+  display: none;
+}
+
+.clue-hotspot > span:last-child {
+  top: auto;
+  bottom: calc(100% + .35cqw);
+}
+
+.reference-entries {
+  display: grid;
+  gap: 12px;
+}
+
+.reference-entry {
+  padding: 14px 18px;
+  border-color: #d0b883;
+  background: #fff9e9;
+  text-align: left;
+}
+
+.reference-entry strong,
+.reference-entry span {
+  display: block;
+}
+
+.reference-entry strong { font-size: 1.1rem; }
+.reference-entry span { margin-top: 4px; }
+.reference-entry:hover { background: #f7ebcc; }
+
+.housing-code-diagram {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.housing-code-diagram > div {
+  padding: 10px 6px;
+  border: 1px solid #23363824;
+  border-radius: 8px;
+  background: #e4efe3;
+  color: #233638;
+  text-align: center;
+}
+
+.housing-code-diagram > div:nth-child(2) { background: #dcecf4; }
+.housing-code-diagram > div:nth-child(3) { background: #f4ead0; }
+.housing-code-diagram > div:nth-child(4) { background: #ece3f5; }
+.housing-code-diagram dt { font: 700 1.6rem/1.35 Consolas, monospace; }
+.housing-code-diagram dd { margin: 4px 0 0; }
+
+@media (max-width: 480px) {
+  .housing-code-diagram { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
