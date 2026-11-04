@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="780" viewBox="0 0 1200 780">
+<defs>
+ <linearGradient id="wall" x2="0" y2="1"><stop stop-color="#344a4c"/><stop offset="1" stop-color="#1d3439"/></linearGradient>
+ <linearGradient id="wood" x2="0.2" y2="1"><stop stop-color="#b97b46"/><stop offset=".6" stop-color="#815031"/><stop offset="1" stop-color="#482f26"/></linearGradient>
+ <radialGradient id="light"><stop stop-color="#ffe6aa" stop-opacity=".25"/><stop offset="1" stop-color="#ffe6aa" stop-opacity="0"/></radialGradient>
+ <pattern id="grain" width="60" height="12" patternUnits="userSpaceOnUse"><path d="M0 3H60 M10 10H53" stroke="#f0c08a" stroke-opacity=".12"/></pattern>
+ <pattern id="cork" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M2 3l4 2m4 7l3-3" stroke="#72533a" stroke-opacity=".3"/></pattern>
+ <filter id="shadow"><feDropShadow dx="0" dy="9" stdDeviation="8" flood-opacity=".3"/></filter>
+ <g id="photo"><path d="M0 0h77v100H0z" fill="#e8ddbd"/><path d="M6 7h65v72H6z" fill="#9aa39a"/><circle cx="38" cy="32" r="15" fill="#e1b290"/><path d="M21 30q0-27 32-10l2 16-8-12-25 9" fill="#493e35"/><path d="M12 79q1-35 26-30 26-5 28 30" fill="#4a6771"/><circle cx="38" cy="3" r="4" fill="#b8513d"/></g>
+</defs>
+<path fill="url(#wall)" d="M0 0h1200v780H0z"/>
+<path d="M0 0l145 90v395L0 592z" fill="#253a3d"/><path d="M1200 0l-135 80v425l135 67z" fill="#142b31"/>
+<path d="M145 90h920v415H145z" fill="url(#light)"/>
+<path d="M0 592l145-107 920 20 135 67v208H0" fill="#304247"/>
+<path d="M20 780l280-280m50 280 180-280m170 280 35-275m280 275-135-275" stroke="#506064" stroke-width="3"/>
+<!-- Door and inset window -->
+<path d="M20 110l115 38v340L20 555z" fill="#624535" stroke="#372c25" stroke-width="12"/><path d="M42 146l67 22v172l-67 18z" fill="#39555a" stroke="#916541" stroke-width="8"/><path d="M49 169l55 16v51l-55-8z" fill="#c3c6a9" opacity=".12"/><path d="M101 386l13-2" stroke="#b5ad8c" stroke-width="7"/>
+<!-- Cork board and anonymous placeholder portraits -->
+<rect x="296" y="112" width="520" height="245" rx="4" fill="#402f25" filter="url(#shadow)"/><rect x="307" y="123" width="498" height="221" fill="#a17a4d"/><rect x="307" y="123" width="498" height="221" fill="url(#cork)"/>
+<g transform="translate(328 167)"><use href="#photo"/><use href="#photo" x="78"/><use href="#photo" x="156"/><use href="#photo" x="234"/><use href="#photo" x="312"/><use href="#photo" x="390"/></g>
+<!-- Overhead lamp -->
+<path d="M553 0v62" stroke="#13282d" stroke-width="7"/><path d="M500 86q15-58 55-37 37-19 56 37z" fill="#14292c"/><ellipse cx="555" cy="87" rx="54" ry="8" fill="#efcf88"/><ellipse cx="555" cy="145" rx="250" ry="160" fill="url(#light)"/>
+<!-- Bookshelf and drawers -->
+<rect x="928" y="90" width="140" height="419" rx="4" fill="#6d4b32" stroke="#302b25" stroke-width="10"/>
+<path d="M937 192h123M937 293h123" stroke="#352e26" stroke-width="9"/>
+<g fill="#b9ad83"><rect x="943" y="208" width="15" height="77"/><rect x="999" y="215" width="20" height="70"/></g><g fill="#49666b"><rect x="964" y="210" width="25" height="75"/><rect x="1026" y="201" width="21" height="84"/></g>
+<g fill="#405255" stroke="#1b3034" stroke-width="4"><rect x="936" y="307" width="124" height="89"/><rect x="936" y="400" width="124" height="96"/></g><path d="M981 338h34m-34 93h34" stroke="#b5b093" stroke-width="5"/>
+<path d="M964 146h62l-9 40h-43z" fill="#c8b692"/><path d="M994 147q-58-25-28-42 24-2 28 42m0 0q-4-66 25-52 18 19-25 52m0 0q35-42 45-16 5 19-45 16" fill="#53725b"/>
+<!-- Desk perspective -->
+<path d="M120 510l941 5 139 197-1200 4z" fill="url(#wood)" stroke="#49372c" stroke-width="4" filter="url(#shadow)"/>
+<path d="M120 510l941 5 139 197-1200 4z" fill="url(#grain)"/>
+<path d="M0 716l1200-4v33L0 752z" fill="#503629"/><path d="M67 751h42v29H67m991-35h43v35h-43" fill="#332c26"/>
+<!-- Closed notebook -->
+<g transform="translate(150 601) rotate(-9)" filter="url(#shadow)"><path d="M0 0h163l17 94H8z" fill="#e2d8ba"/><path d="M0-8h163l17 94H8z" fill="#233a3d" stroke="#ac9166" stroke-width="3"/><path d="M18-8l12 94" stroke="#102a2f" stroke-width="8"/><path d="M131-8l17 94" stroke="#ac9166" stroke-width="3"/></g>
+<!-- Damaged document with fully obscured photograph, no identifying digits -->
+<g transform="translate(392 541) rotate(-4)" filter="url(#shadow)"><path d="M0 8L12 0l9 5L36 0h155l8 8-3 11 8 11-3 18 4 20-10 14H6L0 70l4-17L0 39l6-13z" fill="#e2d8bd"/><path d="M139 13h46v46h-46z" fill="#777c74"/><path d="M137 20l49 31m-48-14 49-16m-44-8 36 49" stroke="#c1b8a1" stroke-width="12"/><path d="M16 19h104M16 32h81M16 44h105M16 65h164" stroke="#a7a28d" stroke-width="4" stroke-dasharray="5 4"/></g>
+<!-- Unsent envelope, stamp absent -->
+<g transform="translate(697 568) rotate(5)" filter="url(#shadow)"><rect width="214" height="112" rx="2" fill="#d8bd87"/><path d="M0 0l107 62L214 0M0 112l76-63m138 63-76-63" fill="none" stroke="#ad8c5f" stroke-width="2"/><path d="M24 22h86m-86 12h61" stroke="#b19160" stroke-width="4"/><rect x="173" y="12" width="25" height="29" fill="none" stroke="#ad8c5f" stroke-dasharray="3 2"/></g>
+<!-- Desk lamp -->
+<ellipse cx="183" cy="540" rx="58" ry="18" fill="#203d39"/><path d="M181 535l-26-124 47-49" stroke="#c0aa70" stroke-width="9" fill="none"/><path d="M176 366q25-69 73-10l-10 35-74-6z" fill="#2b5045" stroke="#163b36" stroke-width="4"/><ellipse cx="207" cy="387" rx="43" ry="9" fill="#f5d78d"/><ellipse cx="300" cy="548" rx="234" ry="81" fill="url(#light)"/>
+<path d="M1002 630l70-4 7 64-63 4z" fill="#d5d6bd"/><path d="M1073 638q46-4 19 39l-16 1" fill="none" stroke="#c4c6b0" stroke-width="9"/>
+</svg>

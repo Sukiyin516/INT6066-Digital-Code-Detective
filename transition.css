@@ -1,0 +1,176 @@
+.game-stage {
+  --envelope-x: 65%;
+  --envelope-y: 78%;
+  --desk-clue-x: 52.5%;
+  --desk-clue-y: 87%;
+  --desk-clue-angle: -6deg;
+}
+
+.desk-clue {
+  position: absolute;
+  left: var(--desk-clue-x);
+  top: var(--desk-clue-y);
+  width: 11%;
+  transform: translate(-50%, -50%) rotate(var(--desk-clue-angle));
+  padding: .5cqw .3cqw;
+  border: .08cqw solid #b49154;
+  border-radius: .12cqw;
+  background: linear-gradient(150deg, #f2db9e, #d4ae72);
+  box-shadow: .2cqw .35cqw .45cqw #20150880;
+  color: #402d1a;
+  font-size: .73cqw;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+
+.desk-clue span { display: block; }
+.desk-clue .clue-code { font-size: .9cqw; }
+.desk-clue:hover, .desk-clue:focus-visible {
+  background: #f8e4aa;
+  box-shadow: .2cqw .35cqw .55cqw #20150899, 0 0 .6cqw #f5cf8980;
+}
+.desk-clue:active { transform: translate(-50%, -50%) rotate(var(--desk-clue-angle)); }
+
+/* The modal matches the image bounds and makes the original hotspots inert. */
+.challenge-transition {
+  position: fixed;
+  inset: 0;
+  width: 100cqw;
+  height: calc(100cqw * 941 / 1672);
+  max-width: none;
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: hidden;
+  color: #fff2d0;
+}
+
+.challenge-transition::backdrop {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+.envelope-spotlight {
+  position: absolute;
+  left: var(--envelope-x);
+  top: var(--envelope-y);
+  width: 21%;
+  height: 19%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  box-shadow: 0 0 0 100cqw #101a1c70, inset 0 0 2.5cqw #f1ba604d, 0 0 2cqw #f1ba6080;
+  transition: opacity .55s ease-out;
+}
+
+.clue-paper {
+  --paper-center-y: 40%;
+  --paper-width: 43;
+  position: absolute;
+  left: 50%;
+  top: var(--paper-center-y);
+  width: calc(var(--paper-width) * 1%);
+  transform: translate(-50%, -50%);
+  padding: 1.8cqw 1cqw;
+  border: .12cqw solid #b99258;
+  border-radius: .35cqw .55cqw .25cqw .65cqw;
+  background: radial-gradient(ellipse at center, #f7e5b4 34%, #e1bc7d 100%);
+  color: #402d1a;
+  text-align: center;
+  font-size: 1.55cqw;
+  box-shadow: 0 1cqw 3cqw #0008, inset 0 0 1.4cqw #b789535c;
+}
+
+.clue-paper p {
+  margin: 0;
+}
+
+.clue-code {
+  font-family: Consolas, monospace;
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+
+.clue-paper .clue-code {
+  font-size: 2.65cqw;
+  margin-bottom: .4cqw;
+}
+
+.challenge-transition.is-playing .clue-paper {
+  animation: unfold-envelope-clue 1.65s ease-in-out both;
+}
+
+.challenge-transition.is-landing .clue-paper {
+  animation: land-desk-clue .65s ease-in-out both;
+}
+
+.challenge-transition.is-landing .envelope-spotlight { opacity: 0; }
+
+@keyframes land-desk-clue {
+  to {
+    left: var(--desk-clue-x);
+    top: var(--desk-clue-y);
+    transform: translate(-50%, -50%) rotate(var(--desk-clue-angle)) scale(calc(11 / var(--paper-width)));
+  }
+}
+
+@keyframes unfold-envelope-clue {
+  0%, 14% {
+    left: var(--envelope-x);
+    top: var(--envelope-y);
+    transform: translate(-50%, -50%) rotate(-6deg) scale(.27);
+    clip-path: inset(0 0 100% 0);
+    opacity: 0;
+  }
+  44% {
+    left: var(--envelope-x);
+    top: calc(var(--envelope-y) - 15%);
+    transform: translate(-50%, -50%) rotate(-6deg) scale(.48);
+    clip-path: inset(0);
+    opacity: 1;
+  }
+  100% {
+    left: 50%;
+    top: var(--paper-center-y);
+    transform: translate(-50%, -50%) rotate(0) scale(1);
+    clip-path: inset(0);
+    opacity: 1;
+  }
+}
+
+.transition-message {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  width: 57%;
+  transform: translateX(-50%);
+  padding: .8cqw 1.5cqw;
+  border: 1px solid #bfa37580;
+  border-radius: .6cqw;
+  background: #15282cf5;
+  text-align: center;
+  font-size: 1.18cqw;
+  line-height: 1.45;
+}
+
+.transition-message h2 { font-size: 1.75cqw; margin: 0 0 .3cqw; color: #f5cf89; }
+.transition-message p { margin: 0; }
+.transition-message h3 { font-size: 1.4cqw; margin: .7cqw 0 .5cqw; }
+.transition-message button { padding: .45cqw 1.4cqw; border-radius: .45cqw; }
+.transition-close { position: absolute; right: 1.5%; top: 2.5%; padding: .15cqw 1cqw; font-size: 1.7cqw; }
+
+@container (max-width: 600px) {
+  .clue-paper { --paper-center-y: 29%; --paper-width: 61; padding: 1.8cqw; font-size: clamp(10px, 2.3cqw, 14px); }
+  .clue-paper .clue-code { font-size: clamp(12px, 3.25cqw, 19px); }
+  .transition-message { top: 48%; width: 85%; font-size: clamp(10px, 2cqw, 13px); }
+  .transition-message h2, .transition-message h3 { font-size: clamp(11px, 2.25cqw, 15px); }
+  .transition-close { font-size: 14px; padding: 1px 6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .challenge-transition.is-playing .clue-paper,
+  .challenge-transition.is-landing .clue-paper { animation: none; }
+  .envelope-spotlight { transition: none; }
+}
