@@ -12,8 +12,14 @@
     { panel: 'neighborhoodRegister', title: '小区编号登记表', label: '资料一：小区编号登记表', description: '查看不同小区对应的数字编号。' },
     { panel: 'housingCode', title: 'TIP 03 · 认识房屋编码', label: '资料二：TIP 03 · 房屋编码规则', description: '学习怎样利用数字表示楼栋、单元和房间的位置。' }
   ];
+  const searchLocations = [
+    ['A', '幸福小区 · 5号楼3单元402室'],
+    ['B', '阳光小区 · 3号楼5单元402室'],
+    ['C', '阳光小区 · 5号楼3单元402室'],
+    ['D', '星河小区 · 5号楼3单元402室']
+  ];
   function freshState() {
-    const initial = { started: false, seen: [], tips: [], excluded: [], selected: null, reasons: [], notes: '', quiz: {}, solved: false, clueStatus: null, stage2Seen: [] };
+    const initial = { started: false, seen: [], tips: [], excluded: [], selected: null, reasons: [], notes: '', quiz: {}, solved: false, clueStatus: null, stage2Seen: [], stage2Solved: false };
     if (stage2Dev) {
       Object.assign(initial, {
         started: true,
@@ -48,6 +54,7 @@
       if (state.clueStatus === 'collected' && Array.isArray(saved.stage2Seen)) {
         state.stage2Seen = stage2References.filter(ref => saved.stage2Seen.includes(ref.panel)).map(ref => ref.panel);
       }
+      state.stage2Solved = saved.stage2Solved === true && canSubmitSearch();
     }
   } catch (_) { /* 浏览器不允许存储时仍可完成本次调查。 */ }
   document.querySelector('#stage2-dev-badge').hidden = !stage2Dev;
@@ -78,6 +85,10 @@
     return edited ? '笔记已自动保存。' : '笔记随输入自动保存在当前浏览器。';
   }
   function addUnique(list,value) { if (!list.includes(value)) list.push(value); }
+  function canSubmitSearch() {
+    return state.clueStatus === 'collected' && state.stage2Seen.length === stage2References.length;
+  }
+
   function progress() {
     const stage2Unlocked = state.clueStatus === 'collected';
     deskClue.hidden = !stage2Unlocked;
@@ -96,13 +107,15 @@
           : ['继续核对数字编码', '查阅其余资料，用知识 Tip 理解数字的含义。'];
     document.querySelector('#task-title').textContent = task[0];
     document.querySelector('#task-description').textContent = task[1];
-    const progressLabel = stage2Unlocked && count === 3 ? '调查进度 · 资料收集完成' : '调查进度 · 已查看资料';
+    const progressLabel = state.stage2Solved ? '调查进度 · 解码成功'
+      : stage2Unlocked && count === 3 ? '调查进度 · 资料收集完成' : '调查进度 · 已查看资料';
     document.querySelector('#progress').innerHTML = `<div class="hud-progress-row"><span>${progressLabel}</span><span class="hud-count">${count} / 3</span></div><div class="hud-progress-track" aria-hidden="true">${[0,1,2].map(i=>`<span class="${i<count?'done':''}"></span>`).join('')}</div>`;
     document.querySelectorAll('.hotspot').forEach(hotspot => {
       hotspot.hidden = stage2Unlocked !== hotspot.hasAttribute('data-stage-2');
       hotspot.classList.toggle('viewed', state.seen.includes(hotspot.dataset.panel));
     });
-    const reportLabel = state.clueStatus === 'pending' ? '继续调查' : state.solved ? '回看结案总结' : '提交调查';
+    const reportLabel = stage2Unlocked ? (canSubmitSearch() ? '提交搜查地点' : '搜查地点')
+      : state.clueStatus === 'pending' ? '继续调查' : state.solved ? '回看结案总结' : '提交调查';
     document.querySelector('#report-button').innerHTML = `${reportLabel} <span aria-hidden="true">→</span>`;
   }
   async function showClue(animate = false) {
@@ -195,6 +208,36 @@
     const entries = stage2References.filter(ref => state.stage2Seen.includes(ref.panel));
     return `<h3>第二关 · 编码资料</h3><div class="reference-entries">${entries.map(ref => `<button type="button" class="reference-entry" data-panel="${ref.panel}"><strong>${ref.label}</strong><span>重新查看资料</span></button>`).join('')}</div>`;
   }
+
+  function searchLocation() {
+    return `<p>根据神秘纸条上的数字：</p>
+      <p class="lead clue-code">${challengeTwo.code}</p>
+      <form id="search-location-form">
+        <fieldset class="report-field">
+          <legend>你认为红宝石可能藏在哪里？</legend>
+          ${searchLocations.map(([id, address]) => `<label class="option"><input type="radio" name="search-location" value="${id}" required><span>${id}. ${address}</span></label>`).join('')}
+        </fieldset>
+        <div class="actions"><button type="submit" class="primary">确认搜查地点</button></div>
+      </form>`;
+  }
+
+  function searchNotReady() {
+    return `<p>查看小区编号登记表和房屋编码知识卡后，再提交搜查地点。</p>
+      <div class="actions"><button type="button" class="primary" data-panel="codeLibrary">查看编码资料库</button></div>`;
+  }
+
+  function searchIncorrect() {
+    return `<p>请仔细检查每组数字的含义和排列顺序。你可以重新查看小区编号登记表和房屋编码知识卡，再试一次！</p>
+      <div class="actions"><button type="button" class="primary" data-action="close">重新调查</button></div>`;
+  }
+
+  function searchSuccess() {
+    return `<p>你成功破解了神秘数字编码！</p>
+      <p class="notice"><strong>正确地点是：阳光小区 · 5号楼 · 3单元 · 4层02室。</strong></p>
+      <p>调查人员已经确定了搜查地点！</p>
+      <div class="actions"><button type="button" class="primary" disabled>查看结案报告</button></div>
+      <p class="modal-muted">结案报告将在后续开放。</p>`;
+  }
   function challengeComplete() {
     return `<p class="lead">恭喜你，小侦探！</p>
       <p>你成功运用身份证号码和邮政编码的知识，仔细分析线索，从六名嫌疑人中找出了最符合证据的目标人物！</p>
@@ -233,7 +276,7 @@
   function summary() {
     return `<span class="stamp">调查报告核对完成</span><h3 class="success-title">你找到了最符合信息的重点调查对象：1号。</h3><p>不仅选对人物，也正确解释了三条信息。</p><ol class="review-list"><li><b>性别：</b>第17位是5，为奇数，身份证登记性别为男性。</li><li><b>出生年份：</b>199□ 只能说明出生于1990—1999年，不能确定具体年份。</li><li><b>通讯城市：</b>寄件人邮编610000对应成都。由于两份资料已核实属于同一对象，才能将其与登记通讯城市比对。</li></ol><p class="notice"><b>重点调查对象不等于已经证明有罪。</b>数字编码帮助核对信息，不能单独证明此人实施盗窃。邮编也不能单独证明个人身份或当前所在地。</p><h3>保护个人信息</h3><p>不要公开、上传或向陌生人提供真实身份证号码和证件照片。游戏中的人物和残缺编码都是虚构的。</p><div class="actions"><button data-action="close" class="primary">返回调查室</button><button data-panel="notes">回看学习笔记</button></div>`;
   }
-  const names = { codeLibrary:['第二关 · 书架资料','编码资料库'], ...Object.fromEntries(stage2References.map(ref => [ref.panel, ['第二关 · 编码资料库', ref.title]])), challengeComplete:['结案进展','🎉 挑战一完成：成功锁定嫌疑人！'], story:['案件档案','红宝石失踪案'], identity:['证物 A','残缺身份证复印件'], envelope:['证物 B','尚未寄出的信封'], lookup:['资料柜','邮编查询簿'], suspects:['人物核对','六人调查板'], notes:['调查记录','侦探笔记'], report:['最后一步','最终调查报告'], summary:['学习回顾','结案总结'], reset:['重新开始','重新调查这个案件？'] };
+  const names = { searchLocation:['第二关 · 搜查地点','挑战二 · 确定搜查地点'], searchNotReady:['第二关 · 搜查地点','请先收集完整的编码线索'], searchIncorrect:['第二关 · 再核对一次','还没有找到正确地点！'], searchSuccess:['第二关 · 搜查地点','解码成功！'], codeLibrary:['第二关 · 书架资料','编码资料库'], ...Object.fromEntries(stage2References.map(ref => [ref.panel, ['第二关 · 编码资料库', ref.title]])), challengeComplete:['结案进展','🎉 挑战一完成：成功锁定嫌疑人！'], story:['案件档案','红宝石失踪案'], identity:['证物 A','残缺身份证复印件'], envelope:['证物 B','尚未寄出的信封'], lookup:['资料柜','邮编查询簿'], suspects:['人物核对','六人调查板'], notes:['调查记录','侦探笔记'], report:['最后一步','最终调查报告'], summary:['学习回顾','结案总结'], reset:['重新开始','重新调查这个案件？'] };
   function openPanel(name) {
     if (!names[name]) return;
     const reference = stage2References.find(ref => ref.panel === name);
@@ -246,7 +289,7 @@
     const [kicker,title] = names[name];
     document.querySelector('#panel-kicker').textContent = kicker;
     document.querySelector('#panel-title').textContent = title;
-    const renderers = { codeLibrary, neighborhoodRegister, housingCode, challengeComplete, story, identity, envelope, lookup, suspects, notes, report, summary, reset:()=>`<p>${stage2Dev ? '这会清除当前页面的测试进度，重新进入第二关测试。' : '这会清除当前浏览器中本案的证物记录、排除标记、答案和个人笔记。'}</p><div class="actions"><button class="primary" data-action="confirm-reset">确认重新开始</button><button data-action="close">保留进度</button></div>` };
+    const renderers = { searchLocation, searchNotReady, searchIncorrect, searchSuccess, codeLibrary, neighborhoodRegister, housingCode, challengeComplete, story, identity, envelope, lookup, suspects, notes, report, summary, reset:()=>`<p>${stage2Dev ? '这会清除当前页面的测试进度，重新进入第二关测试。' : '这会清除当前浏览器中本案的证物记录、排除标记、答案和个人笔记。'}</p><div class="actions"><button class="primary" data-action="confirm-reset">确认重新开始</button><button data-action="close">保留进度</button></div>` };
     body.innerHTML = renderers[name]();
     body.querySelectorAll('details[data-tip]').forEach(el=>el.addEventListener('toggle',()=>{ if(el.open){addUnique(state.tips,el.dataset.tip);save();} }));
     if (name==='identity') D.quizzes.forEach(q=>{if (Number.isInteger(state.quiz[q.id])) quizFeedback(q,state.quiz[q.id]);});
@@ -258,7 +301,13 @@
   dialog.addEventListener('close',()=>{ if(returnFocus && document.contains(returnFocus)) returnFocus.focus(); });
   document.querySelector('#close-panel').addEventListener('click',closePanel);
   document.querySelector('#story-button').addEventListener('click',()=>openPanel('story'));
-  document.querySelector('#report-button').addEventListener('click',()=>openPanel(state.clueStatus === 'pending' ? 'challengeComplete' : state.solved ? 'summary' : 'report'));
+  document.querySelector('#report-button').addEventListener('click', () => {
+    if (state.clueStatus === 'collected') {
+      openPanel(state.stage2Solved ? 'searchSuccess' : canSubmitSearch() ? 'searchLocation' : 'searchNotReady');
+      return;
+    }
+    openPanel(state.clueStatus === 'pending' ? 'challengeComplete' : state.solved ? 'summary' : 'report');
+  });
   document.querySelector('#reset-button').addEventListener('click',()=>openPanel('reset'));
   document.addEventListener('click',event=>{
     const panel = event.target.closest('[data-panel]');
@@ -320,6 +369,13 @@
   });
   body.addEventListener('submit',event=>{
     event.preventDefault();
+    if (event.target.id === 'search-location-form' && canSubmitSearch() && !state.stage2Solved) {
+      const choice = new FormData(event.target).get('search-location');
+      if (!searchLocations.some(([id]) => id === choice)) return;
+      state.stage2Solved = choice === 'C';
+      openPanel(state.stage2Solved ? 'searchSuccess' : 'searchIncorrect');
+      return;
+    }
     if(event.target.id==='lookup-form'){
       const code = new FormData(event.target).get('postcode').trim();
       const record = D.postalRecords.find(r=>r.code===code);
