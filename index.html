@@ -19,17 +19,17 @@
     <h1 class="sr-only">数字迷案 主调查场景</h1>
     <section class="room-section" aria-label="调查室">
       <div class="room game-stage" id="game-stage">
-        <img src="assets/detective-room-background.png" width="1672" height="941" class="room-image" alt="调查室背景，桌上从左至右放有侦探笔记、残缺身份证和未寄出信封，墙上有六人嫌疑人板，右侧书架存放资料。">
+        <img src="assets/detective-room-background.png" width="1672" height="941" class="room-image" alt="调查室背景，桌上从左至右放有侦探笔记、残缺身份证和未寄出信封，墙上有六人资料，右侧书架存放资料。">
         <header class="scene-toolbar" aria-label="调查工具">
           <button class="scene-control notebook-control" data-panel="notes"><span aria-hidden="true">▤</span> 侦探笔记</button>
           <div class="scene-brand"><b>数字迷案</b><span>谁是嫌疑人？</span></div>
           <span class="stage2-dev-badge" id="stage2-dev-badge" hidden>DEV · 第二关测试</span>
           <button id="report-button" class="scene-control primary">提交调查 <span aria-hidden="true">→</span></button>
         </header>
-        <button class="hotspot" style="--x:49.5%;--y:32%" data-panel="suspects"><span class="lens" aria-hidden="true"></span><span>六人嫌疑人板</span></button>
-        <button class="hotspot" style="--x:83%;--y:32%" data-panel="lookup"><span class="lens" aria-hidden="true"></span><span>书架资料</span></button>
+        <button class="hotspot" style="--x:49.5%;--y:32%" data-panel="suspects"><span class="lens" aria-hidden="true"></span><span>六人资料</span></button>
+        <button class="hotspot" style="--x:83%;--y:32%" data-panel="lookup"><span class="lens" aria-hidden="true"></span><span>查邮编</span></button>
         <button class="hotspot" style="--x:43%;--y:73%" data-panel="identity"><span class="lens" aria-hidden="true"></span><span>残缺身份证</span></button>
-        <button class="hotspot" style="--x:var(--envelope-x);--y:var(--envelope-y)" data-panel="envelope"><span class="lens" aria-hidden="true"></span><span>未寄出信封</span></button>
+        <button class="hotspot" style="--x:var(--envelope-x);--y:var(--envelope-y)" data-panel="envelope"><span class="lens" aria-hidden="true"></span><span>未寄出的信</span></button>
         <button class="hotspot" style="--x:23%;--y:79%" data-panel="notes"><span class="lens" aria-hidden="true"></span><span>侦探笔记</span></button>
         <button type="button" class="desk-clue" id="desk-clue" data-action="view-clue" aria-label="查看桌上的纸条" hidden>
           <span class="clue-code"></span>
@@ -39,11 +39,11 @@
         <button type="button" class="hotspot" style="--x:83%;--y:32%" data-stage-2 data-panel="codeLibrary" hidden><span class="lens" aria-hidden="true"></span><span>编码资料库</span></button>
         <aside class="task-hud" aria-label="当前调查任务" aria-live="polite" aria-atomic="true">
           <p class="eyebrow">当前任务 · 红宝石失踪案</p>
-          <h2 id="task-title">找到遗落的线索</h2>
-          <p id="task-description">点击放大镜，查看身份证、信封和书架资料。</p>
+          <h2 id="task-title">找一找线索</h2>
+          <p id="task-description">点放大镜，看看身份证、信封和书架。</p>
           <div id="progress"></div>
         </aside>
-        <nav class="scene-options" aria-label="案件选项"><button id="story-button">案件说明</button><button id="reset-button">重新调查</button></nav>
+        <nav class="scene-options" aria-label="案件选项"><button id="story-button">案件说明</button><button id="reset-button">重新开始</button></nav>
         <dialog id="panel-dialog" aria-labelledby="panel-title"><div class="dialog-head"><div><p class="eyebrow" id="panel-kicker"></p><h2 id="panel-title"></h2></div><button class="close-button" id="close-panel" aria-label="关闭面板">×</button></div><div id="panel-body"></div></dialog>
         <dialog id="challenge-transition" class="challenge-transition" aria-labelledby="discovery-title">
           <div class="envelope-spotlight" aria-hidden="true"></div>
@@ -52,8 +52,8 @@
             <p id="clue-quote"></p>
           </div>
           <div class="transition-message" hidden>
-            <h2 id="discovery-title">新的发现！</h2>
-            <p>失踪的红宝石仍未找到。你在未寄出的信中发现了新的数字线索。</p>
+            <h2 id="discovery-title">有新线索！</h2>
+            <p>信封里藏着一张纸条。宝石会藏在哪儿呢？</p>
             <h3 id="challenge-title"></h3>
             <button type="button" class="primary" id="continue-investigation">继续调查</button>
           </div>
