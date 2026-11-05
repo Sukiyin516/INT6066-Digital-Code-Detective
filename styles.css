@@ -5,7 +5,7 @@
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 @media(max-width:600px){.room{aspect-ratio:1200/780}.sidebar{display:block}.side-links{margin:18px 0}.fiction{margin-top:18px}}
 
-.envelope-evidence {
+.evidence-image {
   display: block;
   width: 100%;
   height: auto;

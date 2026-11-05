@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="960" height="600" viewBox="0 0 960 600" role="img" aria-label="卡通破损身份编码证物，底部18位残缺号码，第7至9位199，第17位5">
+<defs>
+ <linearGradient id="paper" x2=".85" y2="1"><stop stop-color="#ebf8f8"/><stop offset=".48" stop-color="#cfe7e9"/><stop offset="1" stop-color="#f8f3e4"/></linearGradient>
+ <linearGradient id="blue" x2="1" y2="1"><stop stop-color="#93c4d0"/><stop offset="1" stop-color="#cfe5e5"/></linearGradient>
+ <linearGradient id="photo" x2="1" y2="1"><stop stop-color="#83a9b5"/><stop offset="1" stop-color="#e1dddd"/></linearGradient>
+ <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="2" dy="9" stdDeviation="8" flood-color="#355468" flood-opacity=".27"/></filter>
+ <clipPath id="clip"><path d="M80 81 L173 69 214 77 269 72 330 83 385 69 446 81 514 73 580 82 649 72 705 79 773 68 856 82 875 107 871 155 887 185 872 231 885 280 875 324 895 359 879 402 885 453 859 499 797 505 750 493 692 505 627 496 559 511 506 501 438 514 381 501 321 509 265 499 218 512 168 496 119 500 86 483 69 443 80 402 65 355 78 310 65 268 78 217 69 183 82 142 73 105Z"/></clipPath>
+</defs>
+<!-- Die-cut ragged perimeter, transparent outside -->
+<path d="M80 81 L173 69 214 77 269 72 330 83 385 69 446 81 514 73 580 82 649 72 705 79 773 68 856 82 875 107 871 155 887 185 872 231 885 280 875 324 895 359 879 402 885 453 859 499 797 505 750 493 692 505 627 496 559 511 506 501 438 514 381 501 321 509 265 499 218 512 168 496 119 500 86 483 69 443 80 402 65 355 78 310 65 268 78 217 69 183 82 142 73 105Z" fill="url(#paper)" stroke="#66969f" stroke-width="5" stroke-linejoin="round" filter="url(#shadow)"/>
+<g clip-path="url(#clip)">
+ <path d="M64 70H897V136H64Z" fill="#89b8c6" opacity=".59"/>
+ <path d="M74 137C255 164 592 145 888 142" fill="none" stroke="#fff" stroke-width="5" opacity=".57"/>
+ <path d="M72 470 Q420 452 888 467" fill="none" stroke="#85aab4" stroke-width="11" opacity=".20"/>
+ <path d="M114 105L843 103" stroke="#6fa1af" stroke-width="2" stroke-dasharray="4 8" opacity=".65"/>
+ <!-- torn and rubbed portrait -->
+ <rect x="122" y="166" width="249" height="216" rx="15" fill="#f9f5e9" stroke="#739fac" stroke-width="5"/>
+ <path d="M144 181H352V357H144Z" fill="url(#photo)"/>
+ <path d="M163 330 Q174 288 227 275 Q294 265 337 334 V358H163Z" fill="#7d9caa" opacity=".56"/>
+ <ellipse cx="251" cy="234" rx="57" ry="63" fill="#9eb8b9" opacity=".66"/>
+ <path d="M195 216Q237 159 301 209L305 242Q279 212 244 230Q222 238 202 253Z" fill="#7799a4" opacity=".44"/>
+ <!-- large gouges obscuring portrait -->
+ <path d="M123 186L365 268 336 290 143 230Z" fill="#ecf2e9" opacity=".92"/>
+ <path d="M135 283L354 192 361 216 147 314Z" fill="#e8e9de" opacity=".94"/>
+ <path d="M140 346L352 323 331 341 175 363Z" fill="#e8eee8" opacity=".78"/>
+ <path d="M145 210l29 21 -27 6m159-48 38 13 -26 16m-93 107 55-23" fill="none" stroke="#fffaf0" stroke-width="8" stroke-linecap="round"/>
+ <path d="M127 178L348 354" stroke="#5d8c9d" stroke-width="2" stroke-dasharray="5 15" opacity=".32"/>
+ <!-- minimal worn field bars; no real personal data -->
+ <g opacity=".77" fill="#78a1ac">
+  <rect x="424" y="185" width="96" height="13" rx="6"/><rect x="537" y="186" width="230" height="10" rx="5" opacity=".38"/>
+  <rect x="424" y="236" width="83" height="12" rx="6"/><rect x="526" y="237" width="281" height="11" rx="5" opacity=".33"/>
+  <rect x="424" y="286" width="110" height="12" rx="6"/><rect x="548" y="287" width="172" height="11" rx="5" opacity=".42"/>
+  <rect x="424" y="336" width="75" height="11" rx="5"/><rect x="517" y="337" width="251" height="10" rx="5" opacity=".31"/>
+ </g>
+ <g stroke="#fefbf2" stroke-width="7" stroke-linecap="round" opacity=".85">
+  <path d="M587 173l100 36m-159 29 119 15m-78 42 88-22m-218 61 126 14"/>
+ </g>
+ <!-- folds and scuffs -->
+ <path d="M394 79Q420 236 403 497" stroke="#5b8b9e" stroke-width="4" opacity=".13" fill="none"/>
+ <path d="M400 82Q427 245 408 499" stroke="#fff" stroke-width="5" opacity=".52" fill="none"/>
+ <path d="M748 77Q725 198 789 299T782 502" fill="none" stroke="#759ca2" stroke-width="3" opacity=".15"/>
+ <path d="M750 78Q731 198 794 299T788 499" fill="none" stroke="#fff" stroke-width="3" opacity=".50"/>
+ <path d="M90 448q78-21 148 10m481-350 61 20m-630 46 44-9" fill="none" stroke="#fff" stroke-width="4" opacity=".55"/>
+ <!-- bottom strip for critical number -->
+ <path d="M103 389Q475 378 854 393L848 468Q482 481 104 468Z" fill="#f8f3e6" stroke="#99b9bb" stroke-width="3"/>
+ <path d="M114 399H840" stroke="#b6cbca" stroke-width="2" stroke-dasharray="3 9" opacity=".6"/>
+
+<rect x="121" y="414" width="35" height="40" rx="5" fill="#d5ded8" stroke="#a3b2ac" stroke-width="1.8" opacity=".96"/>
+<path d="M129 425l6 5 -4 4 10 9m-9-2 13-17" fill="none" stroke="#91a6a6" stroke-width="3" opacity=".6" stroke-linecap="round"/>
+<path d="M125 438l26-12m-24 21 26-8" stroke="#f9f5ea" stroke-width="4" opacity=".72"/>
+<rect x="161" y="414" width="35" height="40" rx="5" fill="#d5ded8" stroke="#a3b2ac" stroke-width="1.8" opacity=".96"/>
+<path d="M169 425l6 5 -4 4 10 9m-9-2 13-17" fill="none" stroke="#91a6a6" stroke-width="3" opacity=".6" stroke-linecap="round"/>
+<path d="M165 438l26-12m-24 21 26-8" stroke="#f9f5ea" stroke-width="4" opacity=".72"/>
+<rect x="201" y="414" width="35" height="40" rx="5" fill="#d5ded8" stroke="#a3b2ac" stroke-width="1.8" opacity=".96"/>
+<path d="M209 425l6 5 -4 4 10 9m-9-2 13-17" fill="none" stroke="#91a6a6" stroke-width="3" opacity=".6" stroke-linecap="round"/>
+<path d="M205 438l26-12m-24 21 26-8" stroke="#f9f5ea" stroke-width="4" opacity=".72"/>
+<rect x="241" y="414" width="35" height="40" rx="5" fill="#d5ded8" stroke="#a3b2ac" stroke-width="1.8" opacity=".96"/>
+<path d="M249 425l6 5 -4 4 10 9m-9-2 13-17" fill="none" stroke="#91a6a6" stroke-width="3" opacity=".6" stroke-linecap="round"/>
+<path d="M245 438l26-12m-24 21 26-8" stroke="#f9f5ea" stroke-width="4" opacity=".72"/>
+<rect x="281" y="414" width="35" height="40" rx="5" fill="#d5ded8" stroke="#a3b2ac" stroke-width="1.8" opacity=".96"/>
+<path d="M289 425l6 5 -4 4 10 9m-9-2 13-17" fill="none" stroke="#91a6a6" stroke-width="3" opacity=".6" stroke-linecap="round"/>
+<path d="M285 438l26-12m-24 21 26-8" stroke="#f9f5ea" stroke-width="4" opacity=".72"/>
+<rect x="321" y="414" width="35" height="40" rx="5" fill="#d5ded8" stroke="#a3b2ac" stroke-width="1.8" opacity=".96"/>
+<path d="M329 425l6 5 -4 4 10 9m-9-2 13-17" fill="none" stroke="#91a6a6" stroke-width="3" opacity=".6" stroke-linecap="round"/>
+<path d="M325 438l26-12m-24 21 26-8" stroke="#f9f5ea" stroke-width="4" opacity=".72"/>
+<rect x="361" y="414" width="35" height="40" rx="5" fill="#fff9ed" stroke="#7d9cab" stroke-width="1.8" opacity=".96"/>
+<text x="378.5" y="445" text-anchor="middle" fill="#284b5c" font-family="Arial, sans-serif" font-size="30" font-weight="800">1</text>
+<rect x="401" y="414" width="35" height="40" rx="5" fill="#fff9ed" stroke="#7d9cab" stroke-width="1.8" opacity=".96"/>
+<text x="418.5" y="445" text-anchor="middle" fill="#284b5c" font-family="Arial, sans-serif" font-size="30" font-weight="800">9</text>
+<rect x="441" y="414" width="35" height="40" rx="5" fill="#fff9ed" stroke="#7d9cab" stroke-width="1.8" opacity=".96"/>
+<text x="458.5" y="445" text-anchor="middle" fill="#284b5c" font-family="Arial, sans-serif" font-size="30" font-weight="800">9</text>
+<rect x="481" y="414" width="35" height="40" rx="5" fill="#d5ded8" stroke="#a3b2ac" stroke-width="1.8" opacity=".96"/>
+<path d="M489 425l6 5 -4 4 10 9m-9-2 13-17" fill="none" stroke="#91a6a6" stroke-width="3" opacity=".6" stroke-linecap="round"/>
+<path d="M485 438l26-12m-24 21 26-8" stroke="#f9f5ea" stroke-width="4" opacity=".72"/>
+<rect x="521" y="414" width="35" height="40" rx="5" fill="#d5ded8" stroke="#a3b2ac" stroke-width="1.8" opacity=".96"/>
+<path d="M529 425l6 5 -4 4 10 9m-9-2 13-17" fill="none" stroke="#91a6a6" stroke-width="3" opacity=".6" stroke-linecap="round"/>
+<path d="M525 438l26-12m-24 21 26-8" stroke="#f9f5ea" stroke-width="4" opacity=".72"/>
+<rect x="561" y="414" width="35" height="40" rx="5" fill="#d5ded8" stroke="#a3b2ac" stroke-width="1.8" opacity=".96"/>
+<path d="M569 425l6 5 -4 4 10 9m-9-2 13-17" fill="none" stroke="#91a6a6" stroke-width="3" opacity=".6" stroke-linecap="round"/>
+<path d="M565 438l26-12m-24 21 26-8" stroke="#f9f5ea" stroke-width="4" opacity=".72"/>
+<rect x="601" y="414" width="35" height="40" rx="5" fill="#d5ded8" stroke="#a3b2ac" stroke-width="1.8" opacity=".96"/>
+<path d="M609 425l6 5 -4 4 10 9m-9-2 13-17" fill="none" stroke="#91a6a6" stroke-width="3" opacity=".6" stroke-linecap="round"/>
+<path d="M605 438l26-12m-24 21 26-8" stroke="#f9f5ea" stroke-width="4" opacity=".72"/>
+<rect x="641" y="414" width="35" height="40" rx="5" fill="#d5ded8" stroke="#a3b2ac" stroke-width="1.8" opacity=".96"/>
+<path d="M649 425l6 5 -4 4 10 9m-9-2 13-17" fill="none" stroke="#91a6a6" stroke-width="3" opacity=".6" stroke-linecap="round"/>
+<path d="M645 438l26-12m-24 21 26-8" stroke="#f9f5ea" stroke-width="4" opacity=".72"/>
+<rect x="681" y="414" width="35" height="40" rx="5" fill="#d5ded8" stroke="#a3b2ac" stroke-width="1.8" opacity=".96"/>
+<path d="M689 425l6 5 -4 4 10 9m-9-2 13-17" fill="none" stroke="#91a6a6" stroke-width="3" opacity=".6" stroke-linecap="round"/>
+<path d="M685 438l26-12m-24 21 26-8" stroke="#f9f5ea" stroke-width="4" opacity=".72"/>
+<rect x="721" y="414" width="35" height="40" rx="5" fill="#d5ded8" stroke="#a3b2ac" stroke-width="1.8" opacity=".96"/>
+<path d="M729 425l6 5 -4 4 10 9m-9-2 13-17" fill="none" stroke="#91a6a6" stroke-width="3" opacity=".6" stroke-linecap="round"/>
+<path d="M725 438l26-12m-24 21 26-8" stroke="#f9f5ea" stroke-width="4" opacity=".72"/>
+<rect x="761" y="414" width="35" height="40" rx="5" fill="#fff9ed" stroke="#7d9cab" stroke-width="1.8" opacity=".96"/>
+<text x="778.5" y="445" text-anchor="middle" fill="#284b5c" font-family="Arial, sans-serif" font-size="30" font-weight="800">5</text>
+<rect x="801" y="414" width="35" height="40" rx="5" fill="#d5ded8" stroke="#a3b2ac" stroke-width="1.8" opacity=".96"/>
+<path d="M809 425l6 5 -4 4 10 9m-9-2 13-17" fill="none" stroke="#91a6a6" stroke-width="3" opacity=".6" stroke-linecap="round"/>
+<path d="M805 438l26-12m-24 21 26-8" stroke="#f9f5ea" stroke-width="4" opacity=".72"/>
+<!-- decorative isolated abrasion; remain away from the exposed clue digits -->
+ <path d="M75 282l23-8m742 59 27-24M216 487l44-13m349-391 40 14" fill="none" stroke="#fffcf0" stroke-width="8" opacity=".68" stroke-linecap="round"/>
+ <path d="M73 370l19 13 7 27 -24 9m784-283-16 11-4 27 34 14" fill="#e7f1ed" opacity=".67"/>
+</g></svg>
