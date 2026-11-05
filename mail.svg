@@ -51,7 +51,7 @@
 <path d="M788 134 q6 -10 14 -2 q8 7 15 -1 q8 -8 17 0 q8 8 17 0 q7 -8 15 0 q9 7 16 0 q8 -8 17 0 q10 6 18 0 q12 -6 18 7 l-3 12 q11 6 2 14 q-7 7 2 16 q8 8 -1 15 q-7 7 1 15 q7 8 -1 16 q-6 8 2 16 q7 8 -3 14 q-6 8 0 16 q5 11 -7 15 q-8 -3 -15 3 q-9 8 -18 0 q-10 -7 -17 1 q-8 7 -16 -1 q-8 -8 -16 0 q-9 7 -17 -1 q-9 -7 -17 1 q-10 6 -18 -3 q-11 -4 -7 -16 q6 -8 -1 -16 q-8 -8 0 -16 q7 -8 -1 -16 q-8 -8 0 -15 q6 -9 -2 -17 q-8 -8 1 -15 q7 -9 -1 -17 q-7 -9 2 -15 Z" fill="#fff0d3" stroke="#a16a37" stroke-width="3.5"/>
 <rect x="801" y="147" width="130" height="139" rx="2" fill="#f7e2b5" stroke="#b78b5c" stroke-width="2"/>
 <!-- Pixel-art seal reconstructed from color rectangles: NO embedded raster -->
-<g id="seal-vector" transform="translate(800 151) scale(.405 .55)" shape-rendering="crispEdges">
+<g id="seal-vector" transform="translate(788 137) scale(.405 .55)" shape-rendering="crispEdges">
 
 <rect x="155" y="40" width="5" height="5" fill="#000000" fill-opacity="0.831"/>
 <rect x="160" y="40" width="5" height="5" fill="#100f0e"/>
