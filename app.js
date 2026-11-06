@@ -301,16 +301,22 @@
       <p>可是，红宝石在哪里呢？</p>
       <div class="actions"><button type="button" class="primary" data-action="start-next-challenge">继续调查</button></div>`;
   }
-  function tip(type) {
+  function tip(type, withPractice = false) {
     const t = D.tips[type];
     const structure = type === 'identity' ? `<p class="modal-muted">用字母做示例。每格代表一位，YYYY 代表出生年份。</p><div class="structure" aria-label="18位结构示例">${'ABCDEFYYYYMMDDSSSC'.split('').map((c,i)=>`<div class="${i>=6&&i<14?'birth':i>=14&&i<17?'seq':i===17?'last':''} ${i===16?'special':''}"><small>${i+1}</small><b>${c}</b></div>`).join('')}</div><p class="structure-legend">1—6 地址码 ｜ 7—14 出生日期码 ｜ 15—17 顺序码 ｜ 18 校验码<br>第17位在顺序码里。</p>` : `<p class="modal-muted">用213161举个例子。</p><div class="postal-example" aria-label="示例邮编213161">${'213161'.split('').map(n=>`<span>${n}</span>`).join('')}</div><p class="structure-legend">21：省级邮区 ｜ 213：邮区 ｜ 2131：县（市） ｜ 61：投递局（所）<br>前面的数字一步步缩小范围，最后两位看投递局（所）。</p>`;
-    return `<details class="tip" data-tip="${type}"><summary>知识 Tip · ${t.title}</summary>${structure}<ul>${t.lines.map(l=>`<li>${l}</li>`).join('')}</ul></details>`;
+    return `<details class="tip" data-tip="${type}"><summary>知识 Tip · ${t.title}</summary>${structure}<ul>${t.lines.map(l=>`<li>${l}</li>`).join('')}</ul>${withPractice ? '<div class="tip-practice-actions"><button type="button" data-action="open-identity-practice" aria-controls="identity-practice" aria-expanded="false">试一试</button></div>' : ''}</details>`;
   }
   function story() {
     return `<div class="story-gem" aria-hidden="true"><span>◇</span></div>${D.story.map((p,i)=>`<p class="${i===3?'notice':''}">${p}</p>`).join('')}<div class="actions"><button class="primary" data-action="start">${state.started?'返回调查室':'进入调查室 →'}</button></div>`;
   }
   function identity() {
-    return `<p>这是证物 A。照片看不清了。看看哪些数字还认得出来！</p><img class="evidence-image identity-evidence" src="id.svg" width="960" height="600" alt="残缺身份证复印件，第7至9位为199，第17位为5，其余位无法辨认。">${tip('identity')}<h3>试一试</h3>${D.quizzes.map(q=>`<fieldset class="quiz"><legend>${q.question}</legend>${q.options.map((o,i)=>`<label class="option"><input type="radio" name="quiz-${q.id}" data-quiz="${q.id}" value="${i}" ${state.quiz[q.id]===i?'checked':''}>${o}</label>`).join('')}<div id="feedback-${q.id}" class="feedback" role="status"></div></fieldset>`).join('')}<div class="actions"><button data-panel="notes">记笔记</button><button data-panel="suspects">看六人资料</button></div>`;
+    return `<p>这是证物 A。照片看不清了。看看哪些数字还认得出来！</p><img class="evidence-image identity-evidence" src="id.svg" width="960" height="600" alt="残缺身份证复印件，第7至9位为199，第17位为5，其余位无法辨认。"><div class="identity-learning">
+      <div class="identity-tip-column">${tip('identity', true)}</div>
+      <section class="identity-practice" id="identity-practice" role="region" aria-labelledby="identity-practice-title" hidden>
+        <div class="practice-heading"><h3 id="identity-practice-title" tabindex="-1">试一试</h3><button type="button" data-action="close-identity-practice">收起题目</button></div>
+        ${D.quizzes.map(q=>`<fieldset class="quiz"><legend>${q.question}</legend>${q.options.map((o,i)=>`<label class="option"><input type="radio" name="quiz-${q.id}" data-quiz="${q.id}" value="${i}" ${state.quiz[q.id]===i?'checked':''}>${o}</label>`).join('')}<div id="feedback-${q.id}" class="feedback" role="status"></div></fieldset>`).join('')}
+      </section>
+    </div><div class="actions"><button data-panel="notes">记笔记</button><button data-panel="suspects">看六人资料</button></div>`;
   }
   function envelope() {
     return `<p>这是证物 B，一封没寄出的信。</p><img class="evidence-image envelope-evidence" src="mail.svg" width="1020" height="600" alt="破损信封，寄件人邮政编码610000。"><p class="notice">调查员查过了，两件证物都和同一个人有关。用信上的寄件人邮编，和人物资料里登记的联系城市比一比。</p>${tip('postal')}<div class="actions"><button class="primary" data-panel="lookup">查邮编</button><button data-panel="notes">记笔记</button></div>`;
@@ -339,6 +345,7 @@
     if (reference) addUnique(state.stage2Seen, reference.panel);
     if (!dialog.open) returnFocus = document.activeElement;
     currentPanel = name;
+    dialog.classList.remove('with-identity-practice');
     dialog.dataset.panelName = name;
     if (['identity','envelope','lookup'].includes(name)) addUnique(state.seen,name);
     if (persist) save();
@@ -348,13 +355,33 @@
     document.querySelector('#panel-title').textContent = title;
     const renderers = { rubyRecovery, victory, victoryReset, searchLocation, searchNotReady, searchIncorrect, searchSuccess, codeLibrary, neighborhoodRegister, housingCode, challengeComplete, story, identity, envelope, lookup, suspects, notes, report, summary, reset:()=>`<p>${stage2Dev ? '清空这次测试记录，再从第二关开始。' : '从头开始后，这次的线索、选择和笔记都会清空。'}</p><div class="actions"><button class="primary" data-action="confirm-reset">确认重新开始</button><button data-action="close">保留进度</button></div>` };
     body.innerHTML = renderers[name]();
-    body.querySelectorAll('details[data-tip]').forEach(el=>el.addEventListener('toggle',()=>{ if(el.open){addUnique(state.tips,el.dataset.tip);save();} }));
+    body.querySelectorAll('details[data-tip]').forEach(el=>el.addEventListener('toggle',()=>{
+      if(el.open){addUnique(state.tips,el.dataset.tip);save();}
+      else if (el.dataset.tip === 'identity') setIdentityPractice(false);
+    }));
     if (name==='identity') D.quizzes.forEach(q=>{if (Number.isInteger(state.quiz[q.id])) quizFeedback(q,state.quiz[q.id]);});
     if (!dialog.open) dialog.showModal();
     dialog.scrollTop = 0;
     document.querySelector('#close-panel').focus();
   }
   function closePanel() { dialog.close(); }
+  function setIdentityPractice(open) {
+    const practice = body.querySelector('#identity-practice');
+    if (!practice) return;
+    const learning = body.querySelector('.identity-learning');
+    const button = learning.querySelector('[data-action="open-identity-practice"]');
+    practice.hidden = !open;
+    learning.classList.toggle('is-practicing', open);
+    dialog.classList.toggle('with-identity-practice', open);
+    button.setAttribute('aria-expanded', String(open));
+    if (open) {
+      learning.querySelector('details').open = true;
+      practice.querySelector('h3').focus({ preventScroll: true });
+      learning.scrollIntoView({ block: 'start' });
+    } else if (practice.contains(document.activeElement)) {
+      button.focus({ preventScroll: true });
+    }
+  }
   dialog.addEventListener('close',()=>{ if(returnFocus && document.contains(returnFocus)) returnFocus.focus(); });
   document.querySelector('#close-panel').addEventListener('click',closePanel);
   document.querySelector('#story-button').addEventListener('click',()=>openPanel('story'));
@@ -374,6 +401,8 @@
     const panel = event.target.closest('[data-panel]');
     if (panel) { openPanel(panel.dataset.panel); return; }
     const action = event.target.closest('[data-action]')?.dataset.action;
+    if (action === 'open-identity-practice') setIdentityPractice(true);
+    if (action === 'close-identity-practice') setIdentityPractice(false);
     if (action === 'view-case-resolution') viewCaseResolution();
     if (action === 'confirm-victory-reset' && state.caseClosed) restartAfterVictory();
     if (action === 'view-clue') {

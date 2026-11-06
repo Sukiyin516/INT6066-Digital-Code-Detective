@@ -16,3 +16,43 @@
   color: #c53030;
   font-weight: 700;
 }
+
+.tip-practice-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+#panel-dialog.with-identity-practice {
+  width: min(1180px, 94vw);
+}
+
+.identity-learning.is-practicing {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.identity-practice {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid #cbb88e;
+  border-radius: 10px;
+  background: #fffaf0;
+  box-shadow: 0 5px 14px #473c2514;
+}
+
+.practice-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.practice-heading h3 { margin: 0; }
+.practice-heading button { padding: 6px 10px; font-size: 14px; }
+
+@media (max-width: 900px) {
+  .identity-learning.is-practicing { grid-template-columns: minmax(0, 1fr); }
+}
