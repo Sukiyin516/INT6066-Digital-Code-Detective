@@ -4,8 +4,7 @@
     story: [
       'A市博物馆的红宝石不见了，监控拍到有人离开，却看不清脸。',
       '调查员找到一个文件袋，里面的<strong class="story-evidence">身份证复印件</strong>和<strong class="story-evidence">没寄出的信</strong>都和同一个人有关。',
-      '小侦探，去看看线索，找出六人中最符合线索的那一位！',
-      '数字能帮你找线索，但光靠数字，不能证明谁偷了宝石。'
+      '小侦探，去看看线索，从六个嫌疑人中找到凶手！'
     ],
     suspects: [
       { id: 1, name: '1号嫌疑人', gender: '男', year: 1994, city: '成都', color: '#355d78' },

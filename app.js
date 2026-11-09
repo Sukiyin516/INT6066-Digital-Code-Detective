@@ -19,7 +19,7 @@
     ['D', '星河小区 · 5号楼3单元402室']
   ];
   function freshState() {
-    const initial = { started: false, seen: [], tips: [], excluded: [], selected: null, reasons: [], notes: '', quiz: {}, solved: false, clueStatus: null, stage2Seen: [], stage2Solved: false, caseClosed: false };
+    const initial = { started: false, seen: [], tips: [], excluded: [], selected: null, reasons: [], notes: '', quiz: {}, identityClues: [], postalClue: false, solved: false, clueStatus: null, stage2Seen: [], stage2Solved: false, caseClosed: false };
     if (stage2Dev) {
       Object.assign(initial, {
         started: true,
@@ -45,6 +45,11 @@
       state.reasons = Array.isArray(saved.reasons) ? saved.reasons.filter(v => D.reasons.some(r => r.id === v)) : [];
       state.notes = typeof saved.notes === 'string' ? saved.notes.slice(0,5000) : '';
       state.quiz = saved.quiz && typeof saved.quiz === 'object' ? saved.quiz : {};
+      const savedIdentityClues = Array.isArray(saved.identityClues) ? saved.identityClues : [];
+      state.identityClues = D.quizzes
+        .filter(q => savedIdentityClues.includes(q.id) || state.quiz[q.id] === q.correct)
+        .map(q => q.id);
+      state.postalClue = saved.postalClue === true;
       state.solved = saved.solved === true && R.evaluateReport(state.selected,state.reasons).passed;
       if (['pending', 'discovered', 'collected'].includes(saved.clueStatus)) {
         state.clueStatus = saved.clueStatus;
@@ -103,15 +108,16 @@
       ? ['挑战一完成', '点「继续调查」，找找红宝石。']
       : state.clueStatus === 'discovered'
       ? ['查看神秘纸条', '打开侦探笔记，看看信封里的新发现。']
-      : count === 3
-        ? ['选出符合线索的人', '对照六人资料，选一个人，再选理由。']
+      : ['锁定真正的嫌疑人', count === 3
+        ? '线索已经集齐！快去调查六位嫌疑人！'
         : count === 0
-          ? ['找一找线索', '点放大镜，看看身份证、信封和书架。']
-          : ['继续找线索', '看看还有哪份资料没读，再想想数字的意思。'];
+          ? '点击房间里的物品，寻找隐藏的数字线索！'
+          : '继续调查，收集更多线索！'];
+    document.querySelector('#task-kicker').textContent = state.clueStatus ? '当前任务 · 红宝石失踪案' : '当前任务 · 数字迷案';
     document.querySelector('#task-title').textContent = task[0];
     document.querySelector('#task-description').textContent = task[1];
     const progressLabel = state.stage2Solved ? '解码成功'
-      : stage2Unlocked && count === 3 ? '线索找齐了' : '线索进度';
+      : stage2Unlocked && count === 3 ? '线索找齐了' : state.clueStatus ? '线索进度' : '线索收集进度';
     document.querySelector('#progress').innerHTML = `<div class="hud-progress-row"><span>${progressLabel}</span><span class="hud-count">${count} / 3</span></div><div class="hud-progress-track" aria-hidden="true">${[0,1,2].map(i=>`<span class="${i<count?'done':''}"></span>`).join('')}</div>`;
     document.querySelectorAll('.hotspot').forEach(hotspot => {
       hotspot.hidden = stage2Unlocked !== hotspot.hasAttribute('data-stage-2');
@@ -301,42 +307,124 @@
       <p>可是，红宝石在哪里呢？</p>
       <div class="actions"><button type="button" class="primary" data-action="start-next-challenge">继续调查</button></div>`;
   }
-  function tip(type, withPractice = false) {
+  function tip(type, withPractice = false, withPostalTask = false) {
     const t = D.tips[type];
-    const structure = type === 'identity' ? `<p class="modal-muted">用字母做示例。每格代表一位，YYYY 代表出生年份。</p><div class="structure" aria-label="18位结构示例">${'ABCDEFYYYYMMDDSSSC'.split('').map((c,i)=>`<div class="${i>=6&&i<14?'birth':i>=14&&i<17?'seq':i===17?'last':''} ${i===16?'special':''}"><small>${i+1}</small><b>${c}</b></div>`).join('')}</div><p class="structure-legend">1—6 地址码 ｜ 7—14 出生日期码 ｜ 15—17 顺序码 ｜ 18 校验码<br>第17位在顺序码里。</p>` : `<p class="modal-muted">用213161举个例子。</p><div class="postal-example" aria-label="示例邮编213161">${'213161'.split('').map(n=>`<span>${n}</span>`).join('')}</div><p class="structure-legend">21：省级邮区 ｜ 213：邮区 ｜ 2131：县（市） ｜ 61：投递局（所）<br>前面的数字一步步缩小范围，最后两位看投递局（所）。</p>`;
-    return `<details class="tip" data-tip="${type}"><summary>知识 Tip · ${t.title}</summary>${structure}<ul>${t.lines.map(l=>`<li>${l}</li>`).join('')}</ul>${withPractice ? '<div class="tip-practice-actions"><button type="button" data-action="open-identity-practice" aria-controls="identity-practice" aria-expanded="false">试一试</button></div>' : ''}</details>`;
+    const card = type === 'identity'
+      ? `<img class="identity-tip-card" src="assets/tipcard1.png" width="1536" height="1024" alt="身份证编码知识卡。第1至6位是地址码，第7至14位是出生日期码，其中第7至10位是出生年份。第15至17位是顺序码，第17位奇数为男、偶数为女。第18位是校验码。">`
+      : `<img class="postal-tip-card" src="assets/tipcard2.png" width="1536" height="1024" alt="邮政编码小知识。邮编由六位数字组成，可以帮助我们核对地区线索。">`;
+    const postalTask = withPostalTask ? `
+      <section class="postal-investigation-task" aria-labelledby="postal-task-title">
+        <h3 id="postal-task-title">新的调查任务！</h3>
+        <p>信封上的邮政编码是 610000。快去查一查，它对应哪个地区吧！</p>
+        <button type="button" data-panel="lookup">去查邮编</button>
+      </section>` : '';
+    const useDetectiveCard = withPractice || withPostalTask;
+    const heading = useDetectiveCard ? `<summary class="detective-tip-summary">
+      <span class="detective-tip-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18h6m-5 3h4m-5-6c0-1.4-1-2-1.8-3a6 6 0 1 1 9.6 0c-.8 1-1.8 1.6-1.8 3v1H9z"/>
+        </svg>
+      </span>
+      <span class="detective-tip-copy">
+        <strong>知识 Tip · ${t.title}</strong>
+        <span>${withPostalTask ? '点击查看知识，读懂信封上的邮编！' : '点击查看知识，找出隐藏的数字线索！'}</span>
+      </span>
+      <span class="detective-tip-cta" aria-hidden="true">
+        <span class="detective-tip-open">点击查看 →</span>
+        <span class="detective-tip-close">收起提示</span>
+      </span>
+    </summary>` : `<summary>知识 Tip · ${t.title}</summary>`;
+    const practiceIntro = withPractice ? `
+      <div class="tip-practice-actions">
+        <p class="tip-practice-prompt">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/>
+          </svg>
+          <strong>准备好破解身份证上的数字秘密了吗？</strong>
+        </p>
+        <p>运用刚学到的编码知识，找出证物 A 中隐藏的线索！</p>
+        <button type="button" data-action="open-identity-practice" aria-controls="identity-practice" aria-expanded="false">开始解密 <span aria-hidden="true">→</span></button>
+      </div>` : '';
+    return `<details class="tip${useDetectiveCard ? ' detective-tip' : ''}" data-tip="${type}">${heading}${card}${postalTask}${practiceIntro}</details>`;
   }
   function story() {
     return `<div class="story-gem" aria-hidden="true"><span>◇</span></div>${D.story.map((p,i)=>`<p class="${i===3?'notice':''}">${p}</p>`).join('')}<div class="actions"><button class="primary" data-action="start">${state.started?'返回调查室':'进入调查室 →'}</button></div>`;
   }
   function identity() {
-    return `<p>这是证物 A。照片看不清了。看看哪些数字还认得出来！</p><img class="evidence-image identity-evidence" src="id.svg" width="960" height="600" alt="残缺身份证复印件，第7至9位为199，第17位为5，其余位无法辨认。"><div class="identity-learning">
-      <div class="identity-tip-column">${tip('identity', true)}</div>
+    return `<p>这是证物 A。照片看不清了。看看哪些数字还认得出来！</p><div class="identity-learning">
+      <div class="identity-tip-column">
+        <div class="identity-evidence-frame"><img class="evidence-image identity-evidence" src="id.svg" width="960" height="600" alt="残缺身份证复印件，第7至9位为199，第17位为5，其余位无法辨认。"></div>
+        ${tip('identity', true)}
+      </div>
       <section class="identity-practice" id="identity-practice" role="region" aria-labelledby="identity-practice-title" hidden>
-        <div class="practice-heading"><h3 id="identity-practice-title" tabindex="-1">试一试</h3><button type="button" data-action="close-identity-practice">收起题目</button></div>
+        <div class="practice-heading"><h3 id="identity-practice-title" tabindex="-1">线索解密</h3><button type="button" data-action="close-identity-practice">收起解密</button></div>
         ${D.quizzes.map(q=>`<fieldset class="quiz"><legend>${q.question}</legend>${q.options.map((o,i)=>`<label class="option"><input type="radio" name="quiz-${q.id}" data-quiz="${q.id}" value="${i}" ${state.quiz[q.id]===i?'checked':''}>${o}</label>`).join('')}<div id="feedback-${q.id}" class="feedback" role="status"></div></fieldset>`).join('')}
       </section>
-    </div><div class="actions"><button data-panel="notes">记笔记</button><button data-panel="suspects">看六人资料</button></div>`;
+    </div>
+    <div class="investigate-suspects" hidden>
+      <button type="button" data-panel="suspects">调查嫌疑人 <span aria-hidden="true">→</span></button>
+    </div>`;
   }
   function envelope() {
-    return `<p>这是证物 B，一封没寄出的信。</p><img class="evidence-image envelope-evidence" src="mail.svg" width="1020" height="600" alt="破损信封，寄件人邮政编码610000。"><p class="notice">调查员查过了，两件证物都和同一个人有关。用信上的寄件人邮编，和人物资料里登记的联系城市比一比。</p>${tip('postal')}<div class="actions"><button class="primary" data-panel="lookup">查邮编</button><button data-panel="notes">记笔记</button></div>`;
+    return `<p>这是证物 B，一封没寄出的信。</p><img class="evidence-image envelope-evidence" src="mail.svg" width="1020" height="600" alt="破损信封，寄件人邮政编码610000。">
+      ${tip('postal', false, true)}`;
   }
   function lookup() {
-    return `<p>输进信封上的邮编，看看它对应哪个城市。</p><form id="lookup-form"><div class="form-row"><label>输入6位邮编<input name="postcode" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="例如 610000" required autocomplete="off"></label><button class="primary" type="submit">查询</button></div><div id="lookup-result" class="feedback" role="status"></div></form><details class="tip"><summary id="postal-reference-title">邮编对照表</summary><table aria-labelledby="postal-reference-title"><thead><tr><th scope="col">邮政编码</th><th scope="col">邮寄区域</th></tr></thead><tbody>${D.postalRecords.map(r=>`<tr><td>${r.code}</td><td>${r.city}</td></tr>`).join('')}</tbody></table><p class="notice">这两件证物都和同一个人有关，所以这次可以用寄件人邮编来核对联系城市。</p></details><div class="actions"><button data-panel="suspects">看六人资料</button><button data-panel="envelope">回看信封</button></div>`;
+    const magnifier = `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg>`;
+    return `
+      <section class="lookup-task" aria-labelledby="lookup-task-title">
+        <h3 id="lookup-task-title" class="tip-practice-prompt">${magnifier} 调查任务 · 寻找邮编对应的城市</h3>
+        <p>信封上的邮编是 610000。输入邮编，看看它指向哪里！</p>
+      </section>
+      <form id="lookup-form">
+        <div class="form-row">
+          <label>输入6位邮编<input name="postcode" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="例如 610000" required autocomplete="off"></label>
+          <button class="lookup-action" type="submit">${magnifier} 查询邮编</button>
+        </div>
+        <div id="lookup-error" class="feedback" role="status"></div>
+      </form>
+      <section id="lookup-result" class="lookup-result-card" aria-labelledby="lookup-result-title" hidden>
+        <h3 id="lookup-result-title" tabindex="-1">找到新线索！</h3>
+        <p id="lookup-match"></p>
+        <p>快去查看六位嫌疑人的资料，找出登记了相关城市的人！</p>
+        <button class="lookup-action" type="button" data-panel="suspects">调查嫌疑人 <span aria-hidden="true">→</span></button>
+      </section>
+      <details class="tip"><summary id="postal-reference-title">邮编对照表</summary><table aria-labelledby="postal-reference-title"><thead><tr><th scope="col">邮政编码</th><th scope="col">邮寄区域</th></tr></thead><tbody>${D.postalRecords.map(r=>`<tr><td>${r.code}</td><td>${r.city}</td></tr>`).join('')}</tbody></table><p class="notice">这两件证物都和同一个人有关，所以这次可以用寄件人邮编来核对联系城市。</p></details>
+      <div class="actions"><button type="button" class="quiet" data-panel="envelope">回看信封</button></div>`;
   }
   function suspects() {
-    return `<p>先划掉和线索不符的人，想改时可以加回来。选好后，再交报告。</p><div class="suspect-grid">${D.suspects.map(s=>`<article class="suspect-card ${state.excluded.includes(s.id)?'excluded':''} ${state.selected===s.id?'selected':''}"><div class="avatar" style="--avatar:${s.color}" aria-hidden="true"></div><h3>${s.name}</h3><p>性别：${s.gender}　出生：${s.year}年<br>联系城市（登记）：${s.city}</p><span class="excluded-label">${state.excluded.includes(s.id)?'已划掉':state.selected===s.id?'已选中':'待查看'}</span><button data-exclude="${s.id}" aria-pressed="${state.excluded.includes(s.id)}">${state.excluded.includes(s.id)?'加回来':'先划掉'}</button><button data-select="${s.id}" aria-pressed="${state.selected===s.id}" ${state.selected===s.id?'disabled':''}>${state.selected===s.id?'已选中':'选这个人'}</button></article>`).join('')}</div><div class="actions"><button class="primary" data-panel="report">写第一关报告</button><button data-panel="notes">看笔记</button></div>`;
+    return `<p>对照线索，划掉不符合的人。划错了可以加回来。选出最符合线索的人，再交调查报告。</p><div class="suspect-grid">${D.suspects.map(s=>`<article class="suspect-card ${state.excluded.includes(s.id)?'excluded':''} ${state.selected===s.id?'selected':''}"><div class="avatar" style="--avatar:${s.color}" aria-hidden="true"></div><h3>${s.name}</h3><p>性别：${s.gender}　出生：${s.year}年<br>联系城市（登记）：${s.city}</p><span class="excluded-label">${state.excluded.includes(s.id)?'已划掉':state.selected===s.id?'已选中':'待查看'}</span><button data-exclude="${s.id}" aria-pressed="${state.excluded.includes(s.id)}">${state.excluded.includes(s.id)?'加回来':'先划掉'}</button><button data-select="${s.id}" aria-pressed="${state.selected===s.id}" ${state.selected===s.id?'disabled':''}>${state.selected===s.id?'已选中':'选这个人'}</button></article>`).join('')}</div><div class="actions"><button class="primary" data-panel="report">写第一关报告</button><button data-panel="notes">看笔记</button></div>`;
+  }
+  function identityClueNotes() {
+    const clues = D.quizzes.filter(q => state.identityClues.includes(q.id));
+    if (!clues.length) return '';
+    return `<div class="note-item"><b>证物 A · 解密线索</b><ul>${clues.map(q => `<li>${escapeHTML(q.options[q.correct])}</li>`).join('')}</ul></div>`;
   }
   function notes() {
-    return `<h3>找到的线索</h3>${clueNote()}${referenceNotes()}${state.seen.length===0?'<p>还没有线索。回调查室点放大镜吧！</p>':''}${state.seen.includes('identity')?'<div class="note-item"><b>证物 A · 残缺身份证</b><p>第7—14位：199□□□□□；第15—17位：□□5。照片看不清。</p><button data-panel="identity">看身份证</button></div>':''}${state.seen.includes('envelope')?'<div class="note-item"><b>证物 B · 未寄出的信封</b><p>寄件人邮政编码：610000。两件证物和同一个人有关。</p><button data-panel="envelope">看信封</button></div>':''}${state.seen.includes('lookup')?'<div class="note-item"><b>邮编查询簿</b><p>看过邮编对照表。</p><button data-panel="lookup">看邮编簿</button></div>':''}<h3>看过的知识 Tip</h3>${state.tips.length?state.tips.map(tip).join(''):'<p class="modal-muted">打开证物里的 Tip，就会记在这里。</p>'}<h3><label for="my-notes">我的推理</label></h3><textarea id="my-notes" maxlength="5000" placeholder="我发现了……我猜……因为……。别写自己的身份证号。">${escapeHTML(state.notes)}</textarea><p id="note-save-status" class="saved" role="status">${noteStorageStatus()}</p><p class="modal-muted">已划掉：${state.excluded.length?state.excluded.map(n=>n+'号').join('、'):'无'}。<br>当前选择：${state.selected?state.selected+'号嫌疑人':'尚未选择'}。</p><div class="actions"><button data-panel="suspects">改选人物</button><button data-panel="report">写第一关报告</button></div>`;
+    const postalRecord = state.postalClue && D.postalRecords.find(record => record.code === D.postalCode);
+    const postalClue = postalRecord
+      ? `<div class="note-item"><b>证物 B · 解密线索</b><ul><li>邮政编码 ${escapeHTML(postalRecord.code)} 对应的城市是${escapeHTML(postalRecord.city)}。</li></ul></div>`
+      : '';
+    const clues = identityClueNotes() + postalClue + clueNote() + referenceNotes();
+    const laterNotes = state.clueStatus ? `<h3><label for="my-notes">我的推理</label></h3><textarea id="my-notes" maxlength="5000" placeholder="我发现了……我猜……因为……。别写自己的身份证号。">${escapeHTML(state.notes)}</textarea><p id="note-save-status" class="saved" role="status">${noteStorageStatus()}</p><p class="modal-muted">已划掉：${state.excluded.length?state.excluded.map(n=>n+'号').join('、'):'无'}。<br>当前选择：${state.selected?state.selected+'号嫌疑人':'尚未选择'}。</p><div class="actions"><button data-panel="suspects">改选人物</button><button data-panel="report">写第一关报告</button></div>` : '';
+    return `<div class="detective-notes">
+      <section class="detective-notes-section" aria-labelledby="notes-clues-title">
+        <h3 id="notes-clues-title"><span aria-hidden="true">✦</span> 解密线索</h3>
+        ${clues || '<p class="modal-muted">答对解密题后，线索会自动记在这里。</p>'}
+      </section>
+      <section class="detective-notes-section" aria-labelledby="notes-tips-title">
+        <h3 id="notes-tips-title"><span aria-hidden="true">▤</span> 看过的知识 Tip</h3>
+        ${state.tips.length ? state.tips.map(type => tip(type)).join('') : '<p class="modal-muted">打开证物里的知识 Tip 后，就能在这里回看。</p>'}
+      </section>
+    </div>${laterNotes}`;
   }
   function report() {
-    return `<p>选一个最符合线索的人，再勾出你的理由。</p><form id="report-form"><fieldset class="report-field"><legend>1. 谁最符合线索？</legend><div class="report-grid">${D.suspects.map(s=>`<label class="option"><input type="radio" name="person" value="${s.id}" ${state.selected===s.id?'checked':''} required>${s.id}号嫌疑人${state.excluded.includes(s.id)?'（已划掉）':''}</label>`).join('')}</div></fieldset><fieldset class="report-field"><legend>2. 哪些理由说得通？可以多选。</legend>${D.reasons.map(r=>`<label class="option"><input type="checkbox" name="reason" value="${r.id}" ${state.reasons.includes(r.id)?'checked':''}><span>${r.id}. ${r.text}</span></label>`).join('')}</fieldset><p class="modal-muted">两件证物都和同一个人有关。选中划掉的人，就会把他加回来。</p><div class="feedback" id="report-feedback" role="status" tabindex="-1"></div><div class="actions"><button type="submit" class="primary">提交报告</button><button type="button" data-action="close">回去找线索</button></div></form>`;
+    return `<p>先选出最符合线索的嫌疑人，再勾选支持你判断的线索。</p><form id="report-form"><fieldset class="report-field"><legend>1. 谁最符合线索？</legend><div class="report-grid">${D.suspects.map(s=>`<label class="option"><input type="radio" name="person" value="${s.id}" ${state.selected===s.id?'checked':''} required>${s.id}号嫌疑人${state.excluded.includes(s.id)?'（已划掉）':''}</label>`).join('')}</div></fieldset><fieldset class="report-field"><legend>2. 哪些线索支持你的判断？可以多选。</legend>${D.reasons.map(r=>`<label class="option"><input type="checkbox" name="reason" value="${r.id}" ${state.reasons.includes(r.id)?'checked':''}><span>${r.id}. ${r.text}</span></label>`).join('')}</fieldset><p class="modal-muted">两件证物都和同一个人有关。选中划掉的人，就会把他加回来。</p><div class="feedback" id="report-feedback" role="status" tabindex="-1"></div><div class="actions"><button type="submit" class="primary">提交报告</button><button type="button" data-action="close">回去找线索</button></div></form>`;
   }
   function summary() {
     return `<span class="stamp">调查报告核对完成</span><h3 class="success-title">1号最符合三条线索。</h3><p>看看三条线索怎样对上。</p><ol class="review-list"><li><b>性别：</b>5是奇数，登记性别为男。</li><li><b>出生年份：</b>199□ 只能看出是1990年代，具体哪一年还不知道。</li><li><b>通讯城市：</b>寄件人邮编610000对应成都。两件证物都和同一个人有关，所以可以核对联系城市。</li></ol><p class="notice"><b>符合线索的人还要继续调查。</b>数字不能证明他偷了宝石。</p><h3>保护个人信息</h3><p>别把自己的身份证号和证件照片发给别人。</p><div class="actions"><button data-action="close" class="primary">返回调查室</button><button data-panel="notes">看笔记</button></div>`;
   }
-  const names = { rubyRecovery:['结案报告','红宝石找回来啦！'], victory:['结案报告','🏆 破案成功！'], victoryReset:['重新开始','重新开始'], searchLocation:['第二关 · 搜查地点','红宝石可能在哪儿？'], searchNotReady:['第二关 · 搜查地点','先找齐线索'], searchIncorrect:['第二关 · 再核对一次','再试一次！'], searchSuccess:['第二关 · 搜查地点','解码成功！'], codeLibrary:['第二关 · 书架资料','编码资料库'], ...Object.fromEntries(stage2References.map(ref => [ref.panel, ['第二关 · 编码资料库', ref.title]])), challengeComplete:['第一关','🎉 挑战一完成！'], story:['案件档案','红宝石失踪案'], identity:['证物 A','残缺身份证复印件'], envelope:['证物 B','未寄出的信'], lookup:['资料柜','邮编查询簿'], suspects:['人物核对','六人资料'], notes:['调查记录','侦探笔记'], report:['第一关','第一关调查报告'], summary:['学习回顾','结案总结'], reset:['重新开始','要从头开始吗？'] };
+  const names = { rubyRecovery:['结案报告','红宝石找回来啦！'], victory:['结案报告','🏆 破案成功！'], victoryReset:['重新开始','重新开始'], searchLocation:['第二关 · 搜查地点','红宝石可能在哪儿？'], searchNotReady:['第二关 · 搜查地点','先找齐线索'], searchIncorrect:['第二关 · 再核对一次','再试一次！'], searchSuccess:['第二关 · 搜查地点','解码成功！'], codeLibrary:['第二关 · 书架资料','编码资料库'], ...Object.fromEntries(stage2References.map(ref => [ref.panel, ['第二关 · 编码资料库', ref.title]])), challengeComplete:['第一关','🎉 挑战一完成！'], story:['案件档案','红宝石失踪案'], identity:['证物 A','残缺身份证复印件'], envelope:['证物 B','未寄出的信'], lookup:['资料柜','邮编查询簿'], suspects:['调查嫌疑人','六人资料'], notes:['调查记录','侦探笔记'], report:['第一关','第一关调查报告'], summary:['学习回顾','结案总结'], reset:['重新开始','要从头开始吗？'] };
   function openPanel(name, { persist = true } = {}) {
     if (!names[name]) return;
     if (['rubyRecovery', 'victory', 'victoryReset'].includes(name) && !state.caseClosed) return;
@@ -375,9 +463,10 @@
     dialog.classList.toggle('with-identity-practice', open);
     button.setAttribute('aria-expanded', String(open));
     if (open) {
+      body.querySelector('.investigate-suspects').hidden = false;
       learning.querySelector('details').open = true;
       practice.querySelector('h3').focus({ preventScroll: true });
-      learning.scrollIntoView({ block: 'start' });
+      dialog.scrollTop = 0;
     } else if (practice.contains(document.activeElement)) {
       button.focus({ preventScroll: true });
     }
@@ -443,7 +532,14 @@
   }
   body.addEventListener('change',event=>{
     const el=event.target;
-    if(el.dataset.quiz){ const q=D.quizzes.find(q=>q.id===el.dataset.quiz);state.quiz[q.id]=Number(el.value);save();quizFeedback(q,state.quiz[q.id]); }
+    if (el.dataset.quiz) {
+      const q = D.quizzes.find(q => q.id === el.dataset.quiz);
+      const answer = Number(el.value);
+      state.quiz[q.id] = answer;
+      if (answer === q.correct) addUnique(state.identityClues, q.id);
+      save();
+      quizFeedback(q, answer);
+    }
     if(el.closest('#report-form')) {
       state.selected=Number(body.querySelector('input[name=person]:checked')?.value)||null;
       state.reasons=[...body.querySelectorAll('input[name=reason]:checked')].map(el=>el.value);
@@ -471,8 +567,16 @@
     if(event.target.id==='lookup-form'){
       const code = new FormData(event.target).get('postcode').trim();
       const record = D.postalRecords.find(r=>r.code===code);
-      const el=document.querySelector('#lookup-result');
-      el.textContent=record?`${record.code} 对应 ${record.city}。去对照人物资料吧！`:'查不到这个邮编。看看信封上的数字有没有输对。';
+      if (record && record.code === D.postalCode && !state.postalClue) {
+        state.postalClue = true;
+        save();
+      }
+      const result = body.querySelector('#lookup-result');
+      const match = body.querySelector('#lookup-match');
+      body.querySelector('#lookup-error').textContent = record ? '' : '查不到这个邮编。看看信封上的数字有没有输对。';
+      match.textContent = record ? `邮编 ${record.code} 对应的城市是${record.city}。` : '';
+      result.hidden = !record;
+      if (record) result.querySelector('h3').focus();
     }
     if(event.target.id==='report-form'){
       const f = new FormData(event.target);

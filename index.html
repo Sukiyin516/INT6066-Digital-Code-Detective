@@ -26,8 +26,8 @@
           <span class="stage2-dev-badge" id="stage2-dev-badge" hidden>DEV · 第二关测试</span>
           <button id="report-button" class="scene-control primary">提交调查 <span aria-hidden="true">→</span></button>
         </header>
-        <button class="hotspot" style="--x:49.5%;--y:32%" data-panel="suspects"><span class="lens" aria-hidden="true"></span><span>六人资料</span></button>
-        <button class="hotspot" style="--x:83%;--y:32%" data-panel="lookup"><span class="lens" aria-hidden="true"></span><span>查邮编</span></button>
+        <button class="hotspot" style="--x:49.5%;--y:32%" data-panel="suspects"><span class="lens" aria-hidden="true"></span><span>调查嫌疑人</span></button>
+        <button class="hotspot" style="--x:83%;--y:32%" data-panel="lookup"><span class="lens" aria-hidden="true"></span><span>去查看邮编</span></button>
         <button class="hotspot" style="--x:43%;--y:73%" data-panel="identity"><span class="lens" aria-hidden="true"></span><span>残缺身份证</span></button>
         <button class="hotspot" style="--x:var(--envelope-x);--y:var(--envelope-y)" data-panel="envelope"><span class="lens" aria-hidden="true"></span><span>未寄出的信</span></button>
         <button class="hotspot" style="--x:23%;--y:79%" data-panel="notes"><span class="lens" aria-hidden="true"></span><span>侦探笔记</span></button>
@@ -38,9 +38,9 @@
         <button type="button" class="hotspot clue-hotspot" style="--x:54%;--y:81.5%" data-stage-2 data-action="view-clue" hidden><span class="lens" aria-hidden="true"></span><span>神秘纸条</span></button>
         <button type="button" class="hotspot" style="--x:83%;--y:32%" data-stage-2 data-panel="codeLibrary" hidden><span class="lens" aria-hidden="true"></span><span>编码资料库</span></button>
         <aside class="task-hud" aria-label="当前调查任务" aria-live="polite" aria-atomic="true">
-          <p class="eyebrow">当前任务 · 红宝石失踪案</p>
-          <h2 id="task-title">找一找线索</h2>
-          <p id="task-description">点放大镜，看看身份证、信封和书架。</p>
+          <p class="eyebrow" id="task-kicker">当前任务 · 数字迷案</p>
+          <h2 id="task-title">锁定真正的嫌疑人</h2>
+          <p id="task-description">点击房间里的物品，寻找隐藏的数字线索！</p>
           <div id="progress"></div>
         </aside>
         <nav class="scene-options" aria-label="案件选项"><button id="story-button">案件说明</button><button id="reset-button">重新开始</button></nav>
