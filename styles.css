@@ -333,6 +333,21 @@
 .detective-notes-section .tip { margin-top: 8px; }
 .detective-notes-section .note-item:last-child { border-bottom: 0; padding-bottom: 0; }
 .detective-notes-section .note-item ul { margin: 6px 0 0; padding-inline-start: 22px; }
+.notes-clue-group + .notes-clue-group { margin-top: 14px; }
+.notes-clue-group h4 { margin: 0; color: var(--tip-title); font-size: .9rem; }
+.notes-clue-group .note-item:last-child { border-bottom: 0; padding-bottom: 0; }
+.notebook-reference-cards { display: grid; }
+.notebook-reference-card {
+  width: 100%;
+  text-align: start;
+}
+@media (hover: hover) {
+  .notebook-reference-card:hover {
+    background: var(--tip-hover);
+    border-color: #B7772D;
+    box-shadow: 0 4px 10px #5C371C24;
+  }
+}
 
 .lookup-task,
 .lookup-result-card {
@@ -393,6 +408,26 @@
   font-weight: 700;
 }
 .report-retry-primary:hover { background: #75431F; }
+
+.search-review-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--tip-border);
+  border-radius: 12px;
+  background: var(--tip-bg);
+  color: var(--tip-text);
+}
+.search-review-card svg { width: 22px; color: #8B542A; }
+.search-review-card h3 { margin: 0; color: var(--tip-title); font-size: 1rem; }
+.search-review-card p { margin: 0; font-size: .875rem; }
+.search-review-card button { white-space: nowrap; }
+@media (max-width: 480px) {
+  .search-review-card { grid-template-columns: auto minmax(0, 1fr); }
+  .search-review-card button { grid-column: 2; }
+}
 @media (hover: hover) {
   .lookup-action:hover { background: #346B4F; }
 }

@@ -80,6 +80,8 @@
   document.querySelector('#challenge-title').textContent = challengeTwo.title;
   const escapeHTML = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   let currentPanel = '', returnFocus = null;
+  let searchReview = null;
+  let referenceFromNotes = false;
   let clueReturnFocus = null;
   let storageOK = true;
   function save() {
@@ -184,14 +186,18 @@
     if (state.clueStatus === 'discovered') {
       return '<div class="note-item"><b>信封里发现的新线索</b><p><button data-action="view-clue">查看新线索</button></p></div>';
     }
-    return `<div class="note-item"><b>第二关 · 未寄出信封里的纸条</b><p class="clue-code">${challengeTwo.code}</p><p>${challengeTwo.quote}</p><button data-action="view-clue">查看纸条</button></div>`;
+    return `<div class="note-item"><b>神秘纸条</b><p class="clue-code">${challengeTwo.code}</p><p>「${challengeTwo.quote.replace(/^“|”$/g, '')}」</p>${searchReview ? '' : '<button data-action="view-clue">查看纸条</button>'}</div>`;
   }
   function codeLibrary() {
     return `<p>纸条上的数字是什么意思？查查这两份资料。</p>
       <div class="reference-entries">${stage2References.map(ref => `<button type="button" class="reference-entry" data-panel="${ref.panel}"><strong>${ref.label}</strong><span>${ref.description}</span></button>`).join('')}</div>`;
   }
 
-  const returnToLibrary = '<div class="actions"><button type="button" data-panel="codeLibrary">返回资料库</button></div>';
+  function returnFromReference() {
+    return referenceFromNotes
+      ? '<div class="actions"><button type="button" data-panel="notes">返回侦探笔记</button></div>'
+      : '<div class="actions"><button type="button" data-panel="codeLibrary">返回资料库</button></div>';
+  }
 
   function neighborhoodRegister() {
     return `<p>每个小区都有自己的编号。</p>
@@ -199,7 +205,7 @@
         <thead><tr><th scope="col">编码</th><th scope="col">小区名称</th></tr></thead>
         <tbody><tr><td>01</td><td>幸福小区</td></tr><tr><td>02</td><td>阳光小区</td></tr><tr><td>03</td><td>星河小区</td></tr></tbody>
       </table>
-      <p class="notice">看看这些编号，你发现了什么？</p>${returnToLibrary}`;
+      <p class="notice">看看这些编号，你发现了什么？</p>${returnFromReference()}`;
   }
 
   function housingCode() {
@@ -215,18 +221,23 @@
         </dl>
       </div>
       <p>前三段按顺序看：小区、楼栋、单元。最后一段有三位，第一位是楼层，后两位是房号。</p>
-      <p class="notice">用这个办法，试着读一读神秘纸条！</p>${returnToLibrary}`;
+      <p class="notice">用这个办法，试着读一读神秘纸条！</p>${returnFromReference()}`;
   }
 
   function referenceNotes() {
     if (state.clueStatus !== 'collected' || !state.stage2Seen.length) return '';
     const entries = stage2References.filter(ref => state.stage2Seen.includes(ref.panel));
-    return `<h3>第二关 · 编码资料</h3><div class="reference-entries">${entries.map(ref => `<button type="button" class="reference-entry" data-panel="${ref.panel}"><strong>${ref.label}</strong><span>再看一次</span></button>`).join('')}</div>`;
+    return `<div class="notebook-reference-cards">${entries.map(ref => `<button type="button" class="tip detective-tip notebook-reference-card" data-panel="${ref.panel}"><span class="detective-tip-summary">${detectiveTipLabel(ref.label, '点击回顾学过的编码知识！')}</span></button>`).join('')}</div>`;
   }
 
   function searchLocation() {
     return `<p>纸条上的数字</p>
       <p class="lead clue-code">${challengeTwo.code}</p>
+      <section class="search-review-card" aria-labelledby="search-review-title">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v15M3 4h4a5 5 0 0 1 5 3 5 5 0 0 1 5-3h4v14h-4a5 5 0 0 0-5 2 5 5 0 0 0-5-2H3z"/></svg>
+        <div><h3 id="search-review-title">忘记编码规则了？</h3><p>可以回顾已经发现的知识线索。</p></div>
+        <button type="button" class="report-retry-primary" data-action="review-search-notes">查看侦探笔记 <span aria-hidden="true">→</span></button>
+      </section>
       <form id="search-location-form">
         <fieldset class="report-field">
           <legend>选一个搜查地点。</legend>
@@ -313,7 +324,24 @@
       <p>不过，案件还没有结束。失踪的红宝石到底藏在哪里呢？</p>
       <div class="actions"><button type="button" class="primary" data-action="start-next-challenge">进入下一步调查 →</button></div>`;
   }
-  function tip(type, withPractice = false, withPostalTask = false) {
+  function detectiveTipLabel(title, subtitle) {
+    return `
+      <span class="detective-tip-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18h6m-5 3h4m-5-6c0-1.4-1-2-1.8-3a6 6 0 1 1 9.6 0c-.8 1-1.8 1.6-1.8 3v1H9z"/>
+        </svg>
+      </span>
+      <span class="detective-tip-copy">
+        <strong>${title}</strong>
+        <span>${subtitle}</span>
+      </span>
+      <span class="detective-tip-cta" aria-hidden="true">
+        <span class="detective-tip-open">点击查看 →</span>
+        <span class="detective-tip-close">收起提示</span>
+      </span>`;
+  }
+
+  function tip(type, withPractice = false, withPostalTask = false, inNotebook = false) {
     const t = D.tips[type];
     const card = type === 'identity'
       ? `<img class="identity-tip-card" src="assets/tipcard1.png" width="1536" height="1024" alt="身份证编码知识卡。第1至6位是地址码，第7至14位是出生日期码，其中第7至10位是出生年份。第15至17位是顺序码，第17位奇数为男、偶数为女。第18位是校验码。">`
@@ -324,22 +352,10 @@
         <p>信封上的邮政编码是 610000。快去查一查，它对应哪个地区吧！</p>
         <button type="button" data-panel="lookup">去查邮编</button>
       </section>` : '';
-    const useDetectiveCard = withPractice || withPostalTask;
-    const heading = useDetectiveCard ? `<summary class="detective-tip-summary">
-      <span class="detective-tip-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 18h6m-5 3h4m-5-6c0-1.4-1-2-1.8-3a6 6 0 1 1 9.6 0c-.8 1-1.8 1.6-1.8 3v1H9z"/>
-        </svg>
-      </span>
-      <span class="detective-tip-copy">
-        <strong>知识 Tip · ${t.title}</strong>
-        <span>${withPostalTask ? '点击查看知识，读懂信封上的邮编！' : '点击查看知识，找出隐藏的数字线索！'}</span>
-      </span>
-      <span class="detective-tip-cta" aria-hidden="true">
-        <span class="detective-tip-open">点击查看 →</span>
-        <span class="detective-tip-close">收起提示</span>
-      </span>
-    </summary>` : `<summary>知识 Tip · ${t.title}</summary>`;
+    const useDetectiveCard = withPractice || withPostalTask || inNotebook;
+    const heading = useDetectiveCard
+      ? `<summary class="detective-tip-summary">${detectiveTipLabel(`知识 Tip · ${t.title}`, inNotebook ? '点击回顾学过的编码知识！' : withPostalTask ? '点击查看知识，读懂信封上的邮编！' : '点击查看知识，找出隐藏的数字线索！')}</summary>`
+      : `<summary>知识 Tip · ${t.title}</summary>`;
     const practiceIntro = withPractice ? `
       <div class="tip-practice-actions">
         <p class="tip-practice-prompt">
@@ -411,18 +427,22 @@
     const postalClue = postalRecord
       ? `<div class="note-item"><b>证物 B · 解密线索</b><ul><li>邮政编码 ${escapeHTML(postalRecord.code)} 对应的城市是${escapeHTML(postalRecord.city)}。</li></ul></div>`
       : '';
-    const clues = identityClueNotes() + postalClue + clueNote() + referenceNotes();
-    const laterNotes = state.clueStatus ? `<h3><label for="my-notes">我的推理</label></h3><textarea id="my-notes" maxlength="5000" placeholder="我发现了……我猜……因为……。别写自己的身份证号。">${escapeHTML(state.notes)}</textarea><p id="note-save-status" class="saved" role="status">${noteStorageStatus()}</p><p class="modal-muted">已划掉：${state.excluded.length?state.excluded.map(n=>n+'号').join('、'):'无'}。<br>当前选择：${state.selected?state.selected+'号嫌疑人':'尚未选择'}。</p><div class="actions"><button data-panel="suspects">改选人物</button><button data-panel="report">写第一关报告</button></div>` : '';
+    const firstClues = identityClueNotes() + postalClue;
+    const secondClue = clueNote();
+    const references = referenceNotes();
+    const firstTips = state.tips.map(type => tip(type, false, false, true)).join('');
     return `<div class="detective-notes">
       <section class="detective-notes-section" aria-labelledby="notes-clues-title">
         <h3 id="notes-clues-title"><span aria-hidden="true">✦</span> 解密线索</h3>
-        ${clues || '<p class="modal-muted">答对解密题后，线索会自动记在这里。</p>'}
+        ${firstClues ? `<div class="notes-clue-group"><h4>第一关</h4>${firstClues}</div>` : ''}
+        ${secondClue ? `<div class="notes-clue-group"><h4>第二关</h4>${secondClue}</div>` : ''}
+        ${!firstClues && !secondClue ? '<p class="modal-muted">答对解密题后，线索会自动记在这里。</p>' : ''}
       </section>
       <section class="detective-notes-section" aria-labelledby="notes-tips-title">
         <h3 id="notes-tips-title"><span aria-hidden="true">▤</span> 看过的知识 Tip</h3>
-        ${state.tips.length ? state.tips.map(type => tip(type)).join('') : '<p class="modal-muted">打开证物里的知识 Tip 后，就能在这里回看。</p>'}
+        ${(searchReview ? references + firstTips : firstTips + references) || '<p class="modal-muted">打开证物里的知识 Tip 后，就能在这里回看。</p>'}
       </section>
-    </div>${laterNotes}`;
+    </div>`;
   }
   function report() {
     return `<p>先选出最符合线索的嫌疑人，再勾选支持你判断的线索。</p><form id="report-form"><fieldset class="report-field"><legend>1. 谁最符合线索？</legend><div class="report-grid">${D.suspects.map(s=>`<label class="option"><input type="radio" name="person" value="${s.id}" ${state.selected===s.id?'checked':''} required>${s.id}号嫌疑人${state.excluded.includes(s.id)?'（已划掉）':''}</label>`).join('')}</div></fieldset><fieldset class="report-field"><legend>2. 哪些线索支持你的判断？可以多选。</legend>${D.reasons.map(r=>`<label class="option"><input type="checkbox" name="reason" value="${r.id}" ${state.reasons.includes(r.id)?'checked':''}><span>${r.id}. ${r.text}</span></label>`).join('')}</fieldset><p class="modal-muted">两件证物都和同一个人有关。选中划掉的人，就会把他加回来。</p><div class="actions"><button type="submit" class="primary">提交报告</button><button type="button" data-action="close">回去找线索</button></div></form>`;
@@ -444,6 +464,7 @@
     if (['rubyRecovery', 'victory', 'victoryReset'].includes(name) && !state.caseClosed) return;
     const reference = stage2References.find(ref => ref.panel === name);
     if ((reference || name === 'codeLibrary') && state.clueStatus !== 'collected') return;
+    referenceFromNotes = Boolean(reference && currentPanel === 'notes');
     if (reference) addUnique(state.stage2Seen, reference.panel);
     if (!dialog.open) returnFocus = document.activeElement;
     currentPanel = name;
@@ -464,9 +485,26 @@
     if (name==='identity') D.quizzes.forEach(q=>{if (Number.isInteger(state.quiz[q.id])) quizFeedback(q,state.quiz[q.id]);});
     if (!dialog.open) dialog.showModal();
     dialog.scrollTop = 0;
-    document.querySelector('#close-panel').focus();
+    const firstReviewCard = name === 'notes' && searchReview && body.querySelector('.notebook-reference-card');
+    if (firstReviewCard) firstReviewCard.focus();
+    else document.querySelector('#close-panel').focus();
   }
-  function closePanel() { dialog.close(); }
+  function closePanel() {
+    if (!searchReview) {
+      dialog.close();
+      return;
+    }
+    if (currentPanel !== 'notes') {
+      openPanel('notes', { persist: false });
+      return;
+    }
+    const { choice } = searchReview;
+    searchReview = null;
+    openPanel('searchLocation', { persist: false });
+    const selected = body.querySelector(`[name="search-location"][value="${choice}"]`);
+    if (selected) selected.checked = true;
+    body.querySelector('[data-action="review-search-notes"]').focus({ preventScroll: true });
+  }
   function setIdentityPractice(open) {
     const practice = body.querySelector('#identity-practice');
     if (!practice) return;
@@ -486,6 +524,11 @@
     }
   }
   dialog.addEventListener('close',()=>{ if(returnFocus && document.contains(returnFocus)) returnFocus.focus(); });
+  dialog.addEventListener('cancel', event => {
+    if (!searchReview) return;
+    event.preventDefault();
+    closePanel();
+  });
   document.querySelector('#close-panel').addEventListener('click',closePanel);
   document.querySelector('#story-button').addEventListener('click',()=>openPanel('story'));
   document.querySelector('#report-button').addEventListener('click', () => {
@@ -502,8 +545,12 @@
   document.querySelector('#reset-button').addEventListener('click',()=>openPanel('reset'));
   document.addEventListener('click',event=>{
     const panel = event.target.closest('[data-panel]');
-    if (panel) { openPanel(panel.dataset.panel); return; }
+    if (panel) { openPanel(panel.dataset.panel, { persist: !searchReview }); return; }
     const action = event.target.closest('[data-action]')?.dataset.action;
+    if (action === 'review-search-notes' && currentPanel === 'searchLocation') {
+      searchReview = { choice: body.querySelector('[name="search-location"]:checked')?.value ?? '' };
+      openPanel('notes', { persist: false });
+    }
     if (action === 'open-identity-practice') setIdentityPractice(true);
     if (action === 'close-identity-practice') setIdentityPractice(false);
     if (action === 'view-case-resolution') viewCaseResolution();
