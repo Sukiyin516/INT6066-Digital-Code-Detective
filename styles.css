@@ -369,6 +369,30 @@
 }
 .lookup-action svg { width: 1.15em; height: 1.15em; }
 .lookup-result-card .lookup-action { margin-top: 12px; }
+
+.report-retry-actions {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+.report-retry-hint {
+  padding: 10px 14px;
+  border: 1px solid var(--tip-border);
+  border-radius: 12px;
+  background: var(--tip-bg-soft);
+  color: var(--tip-text);
+}
+.report-retry-hint summary { cursor: pointer; font-weight: 700; color: var(--tip-title); }
+.report-retry-hint p { margin: 8px 0 0; }
+.report-retry-primary {
+  justify-self: end;
+  min-height: 44px;
+  border: 0;
+  background: #8B542A;
+  color: #fff;
+  font-weight: 700;
+}
+.report-retry-primary:hover { background: #75431F; }
 @media (hover: hover) {
   .lookup-action:hover { background: #346B4F; }
 }

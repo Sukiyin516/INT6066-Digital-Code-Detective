@@ -19,7 +19,7 @@
     ['D', '星河小区 · 5号楼3单元402室']
   ];
   function freshState() {
-    const initial = { started: false, seen: [], tips: [], excluded: [], selected: null, reasons: [], notes: '', quiz: {}, identityClues: [], postalClue: false, solved: false, clueStatus: null, stage2Seen: [], stage2Solved: false, caseClosed: false };
+    const initial = { started: false, seen: [], tips: [], excluded: [], selected: null, reasons: [], notes: '', quiz: {}, identityClues: [], postalClue: false, reportMistakes: 0, solved: false, clueStatus: null, stage2Seen: [], stage2Solved: false, caseClosed: false };
     if (stage2Dev) {
       Object.assign(initial, {
         started: true,
@@ -50,6 +50,7 @@
         .filter(q => savedIdentityClues.includes(q.id) || state.quiz[q.id] === q.correct)
         .map(q => q.id);
       state.postalClue = saved.postalClue === true;
+      state.reportMistakes = Number.isSafeInteger(saved.reportMistakes) && saved.reportMistakes > 0 ? saved.reportMistakes : 0;
       state.solved = saved.solved === true && R.evaluateReport(state.selected,state.reasons).passed;
       if (['pending', 'discovered', 'collected'].includes(saved.clueStatus)) {
         state.clueStatus = saved.clueStatus;
@@ -419,12 +420,20 @@
     </div>${laterNotes}`;
   }
   function report() {
-    return `<p>先选出最符合线索的嫌疑人，再勾选支持你判断的线索。</p><form id="report-form"><fieldset class="report-field"><legend>1. 谁最符合线索？</legend><div class="report-grid">${D.suspects.map(s=>`<label class="option"><input type="radio" name="person" value="${s.id}" ${state.selected===s.id?'checked':''} required>${s.id}号嫌疑人${state.excluded.includes(s.id)?'（已划掉）':''}</label>`).join('')}</div></fieldset><fieldset class="report-field"><legend>2. 哪些线索支持你的判断？可以多选。</legend>${D.reasons.map(r=>`<label class="option"><input type="checkbox" name="reason" value="${r.id}" ${state.reasons.includes(r.id)?'checked':''}><span>${r.id}. ${r.text}</span></label>`).join('')}</fieldset><p class="modal-muted">两件证物都和同一个人有关。选中划掉的人，就会把他加回来。</p><div class="feedback" id="report-feedback" role="status" tabindex="-1"></div><div class="actions"><button type="submit" class="primary">提交报告</button><button type="button" data-action="close">回去找线索</button></div></form>`;
+    return `<p>先选出最符合线索的嫌疑人，再勾选支持你判断的线索。</p><form id="report-form"><fieldset class="report-field"><legend>1. 谁最符合线索？</legend><div class="report-grid">${D.suspects.map(s=>`<label class="option"><input type="radio" name="person" value="${s.id}" ${state.selected===s.id?'checked':''} required>${s.id}号嫌疑人${state.excluded.includes(s.id)?'（已划掉）':''}</label>`).join('')}</div></fieldset><fieldset class="report-field"><legend>2. 哪些线索支持你的判断？可以多选。</legend>${D.reasons.map(r=>`<label class="option"><input type="checkbox" name="reason" value="${r.id}" ${state.reasons.includes(r.id)?'checked':''}><span>${r.id}. ${r.text}</span></label>`).join('')}</fieldset><p class="modal-muted">两件证物都和同一个人有关。选中划掉的人，就会把他加回来。</p><div class="actions"><button type="submit" class="primary">提交报告</button><button type="button" data-action="close">回去找线索</button></div></form>`;
+  }
+  function reportRetry() {
+    const canViewHint = state.reportMistakes >= 2;
+    return `<p>${canViewHint ? '要不要回顾一下调查方法？' : '这次的调查结论还不太准确。别急着下结论！重新看看收集到的数字线索，再对照六位嫌疑人的资料吧。'}</p>
+      <div class="report-retry-actions">
+        ${canViewHint ? `<details class="report-retry-hint"><summary>查看提示</summary><p>试着依次比较三条线索：登记性别、出生年代、联系城市。看看哪位嫌疑人同时符合这些条件。</p></details>` : ''}
+        <button type="button" class="report-retry-primary" data-panel="suspects">重新调查</button>
+      </div>`;
   }
   function summary() {
     return `<span class="stamp">调查报告核对完成</span><h3 class="success-title">1号最符合三条线索。</h3><p>看看三条线索怎样对上。</p><ol class="review-list"><li><b>性别：</b>5是奇数，登记性别为男。</li><li><b>出生年份：</b>199□ 只能看出是1990年代，具体哪一年还不知道。</li><li><b>通讯城市：</b>寄件人邮编610000对应成都。两件证物都和同一个人有关，所以可以核对联系城市。</li></ol><p class="notice"><b>符合线索的人还要继续调查。</b>数字不能证明他偷了宝石。</p><h3>保护个人信息</h3><p>别把自己的身份证号和证件照片发给别人。</p><div class="actions"><button data-action="close" class="primary">返回调查室</button><button data-panel="notes">看笔记</button></div>`;
   }
-  const names = { rubyRecovery:['结案报告','红宝石找回来啦！'], victory:['结案报告','🏆 破案成功！'], victoryReset:['重新开始','重新开始'], searchLocation:['第二关 · 搜查地点','红宝石可能在哪儿？'], searchNotReady:['第二关 · 搜查地点','先找齐线索'], searchIncorrect:['第二关 · 再核对一次','再试一次！'], searchSuccess:['第二关 · 搜查地点','解码成功！'], codeLibrary:['第二关 · 书架资料','编码资料库'], ...Object.fromEntries(stage2References.map(ref => [ref.panel, ['第二关 · 编码资料库', ref.title]])), challengeComplete:['第一关','🎉 挑战一完成！'], story:['案件档案','红宝石失踪案'], identity:['证物 A','残缺身份证复印件'], envelope:['证物 B','未寄出的信'], lookup:['资料柜','邮编查询簿'], suspects:['调查嫌疑人','六人资料'], notes:['调查记录','侦探笔记'], report:['第一关','第一关调查报告'], summary:['学习回顾','结案总结'], reset:['重新开始','要从头开始吗？'] };
+  const names = { rubyRecovery:['结案报告','红宝石找回来啦！'], victory:['结案报告','🏆 破案成功！'], victoryReset:['重新开始','重新开始'], searchLocation:['第二关 · 搜查地点','红宝石可能在哪儿？'], searchNotReady:['第二关 · 搜查地点','先找齐线索'], searchIncorrect:['第二关 · 再核对一次','再试一次！'], searchSuccess:['第二关 · 搜查地点','解码成功！'], codeLibrary:['第二关 · 书架资料','编码资料库'], ...Object.fromEntries(stage2References.map(ref => [ref.panel, ['第二关 · 编码资料库', ref.title]])), challengeComplete:['第一关','🎉 挑战一完成！'], story:['案件档案','红宝石失踪案'], identity:['证物 A','残缺身份证复印件'], envelope:['证物 B','未寄出的信'], lookup:['资料柜','邮编查询簿'], suspects:['调查嫌疑人','六人资料'], notes:['调查记录','侦探笔记'], report:['第一关','第一关调查报告'], reportRetry:['第一关','侦探，再仔细想想！'], summary:['学习回顾','结案总结'], reset:['重新开始','要从头开始吗？'] };
   function openPanel(name, { persist = true } = {}) {
     if (!names[name]) return;
     if (['rubyRecovery', 'victory', 'victoryReset'].includes(name) && !state.caseClosed) return;
@@ -440,8 +449,8 @@
     progress();
     const [kicker,title] = names[name];
     document.querySelector('#panel-kicker').textContent = kicker;
-    document.querySelector('#panel-title').textContent = title;
-    const renderers = { rubyRecovery, victory, victoryReset, searchLocation, searchNotReady, searchIncorrect, searchSuccess, codeLibrary, neighborhoodRegister, housingCode, challengeComplete, story, identity, envelope, lookup, suspects, notes, report, summary, reset:()=>`<p>${stage2Dev ? '清空这次测试记录，再从第二关开始。' : '从头开始后，这次的线索、选择和笔记都会清空。'}</p><div class="actions"><button class="primary" data-action="confirm-reset">确认重新开始</button><button data-action="close">保留进度</button></div>` };
+    document.querySelector('#panel-title').textContent = name === 'reportRetry' && state.reportMistakes >= 2 ? '侦探，还差一点点！' : title;
+    const renderers = { rubyRecovery, victory, victoryReset, searchLocation, searchNotReady, searchIncorrect, searchSuccess, codeLibrary, neighborhoodRegister, housingCode, challengeComplete, story, identity, envelope, lookup, suspects, notes, report, reportRetry, summary, reset:()=>`<p>${stage2Dev ? '清空这次测试记录，再从第二关开始。' : '从头开始后，这次的线索、选择和笔记都会清空。'}</p><div class="actions"><button class="primary" data-action="confirm-reset">确认重新开始</button><button data-action="close">保留进度</button></div>` };
     body.innerHTML = renderers[name]();
     body.querySelectorAll('details[data-tip]').forEach(el=>el.addEventListener('toggle',()=>{
       if(el.open){addUnique(state.tips,el.dataset.tip);save();}
@@ -545,7 +554,6 @@
       state.reasons=[...body.querySelectorAll('input[name=reason]:checked')].map(el=>el.value);
       state.excluded=state.excluded.filter(id=>id!==state.selected);
       state.solved=false;save();progress();
-      document.querySelector('#report-feedback').textContent='';
     }
   });
   body.addEventListener('input',event=>{
@@ -585,11 +593,12 @@
       const firstClear = result.passed && !state.clueStatus;
       state.solved = result.passed;
       if (firstClear) state.clueStatus = 'pending';
+      if (!result.passed && !state.clueStatus) state.reportMistakes += 1;
       save();
       progress();
       if (result.passed && state.clueStatus === 'pending') openPanel('challengeComplete');
       else if (result.passed) openPanel('summary');
-      else {const el=document.querySelector('#report-feedback');el.innerHTML='<b>再查一查，线索都还在！</b><ul>'+result.hints.map(h=>`<li>${h}</li>`).join('')+'</ul>';el.focus();}
+      else openPanel('reportRetry', { persist: false });
     }
   });
   progress();
