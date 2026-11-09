@@ -104,7 +104,12 @@
     const task = state.caseClosed
       ? ['案件已完成', '想再看看？打开结案报告或侦探笔记。']
       : stage2Unlocked
-      ? [challengeTwo.title, '查查纸条上的数字，找出宝石可能藏在哪儿。']
+      ? ['寻找失踪的红宝石', [
+          '仔细观察房间，寻找红宝石的新线索！',
+          '神秘纸条已经找到！快去寻找能解读数字的资料。',
+          '再寻找一条编码规则，看看这些数字代表什么！',
+          '线索已经集齐！试着解开纸条上的数字秘密！'
+        ][count]]
       : state.clueStatus === 'pending'
       ? ['挑战一完成', '点「继续调查」，找找红宝石。']
       : state.clueStatus === 'discovered'
@@ -118,7 +123,7 @@
     document.querySelector('#task-title').textContent = task[0];
     document.querySelector('#task-description').textContent = task[1];
     const progressLabel = state.stage2Solved ? '解码成功'
-      : stage2Unlocked && count === 3 ? '线索找齐了' : state.clueStatus ? '线索进度' : '线索收集进度';
+      : stage2Unlocked || !state.clueStatus ? '线索收集进度' : '线索进度';
     document.querySelector('#progress').innerHTML = `<div class="hud-progress-row"><span>${progressLabel}</span><span class="hud-count">${count} / 3</span></div><div class="hud-progress-track" aria-hidden="true">${[0,1,2].map(i=>`<span class="${i<count?'done':''}"></span>`).join('')}</div>`;
     document.querySelectorAll('.hotspot').forEach(hotspot => {
       hotspot.hidden = stage2Unlocked !== hotspot.hasAttribute('data-stage-2');
@@ -133,7 +138,7 @@
     if (dialog.open) dialog.close();
     transitionMessage.hidden = animate;
     transitionClose.hidden = animate;
-    continueButton.textContent = state.clueStatus === 'collected' ? '返回调查室' : '继续调查';
+    continueButton.textContent = state.clueStatus === 'collected' ? '返回调查室' : '继续调查 →';
     transitionDialog.classList.toggle('is-playing', animate);
     transitionDialog.showModal();
 
@@ -304,9 +309,9 @@
   }
   function challengeComplete() {
     return `<p class="lead">恭喜你，小侦探！</p>
-      <p>你找到了最符合线索的人！</p>
-      <p>可是，红宝石在哪里呢？</p>
-      <div class="actions"><button type="button" class="primary" data-action="start-next-challenge">继续调查</button></div>`;
+      <p>你已经根据身份证和邮编线索，成功找到了最符合条件的嫌疑人。</p>
+      <p>不过，案件还没有结束。失踪的红宝石到底藏在哪里呢？</p>
+      <div class="actions"><button type="button" class="primary" data-action="start-next-challenge">进入下一步调查 →</button></div>`;
   }
   function tip(type, withPractice = false, withPostalTask = false) {
     const t = D.tips[type];
@@ -433,7 +438,7 @@
   function summary() {
     return `<span class="stamp">调查报告核对完成</span><h3 class="success-title">1号最符合三条线索。</h3><p>看看三条线索怎样对上。</p><ol class="review-list"><li><b>性别：</b>5是奇数，登记性别为男。</li><li><b>出生年份：</b>199□ 只能看出是1990年代，具体哪一年还不知道。</li><li><b>通讯城市：</b>寄件人邮编610000对应成都。两件证物都和同一个人有关，所以可以核对联系城市。</li></ol><p class="notice"><b>符合线索的人还要继续调查。</b>数字不能证明他偷了宝石。</p><h3>保护个人信息</h3><p>别把自己的身份证号和证件照片发给别人。</p><div class="actions"><button data-action="close" class="primary">返回调查室</button><button data-panel="notes">看笔记</button></div>`;
   }
-  const names = { rubyRecovery:['结案报告','红宝石找回来啦！'], victory:['结案报告','🏆 破案成功！'], victoryReset:['重新开始','重新开始'], searchLocation:['第二关 · 搜查地点','红宝石可能在哪儿？'], searchNotReady:['第二关 · 搜查地点','先找齐线索'], searchIncorrect:['第二关 · 再核对一次','再试一次！'], searchSuccess:['第二关 · 搜查地点','解码成功！'], codeLibrary:['第二关 · 书架资料','编码资料库'], ...Object.fromEntries(stage2References.map(ref => [ref.panel, ['第二关 · 编码资料库', ref.title]])), challengeComplete:['第一关','🎉 挑战一完成！'], story:['案件档案','红宝石失踪案'], identity:['证物 A','残缺身份证复印件'], envelope:['证物 B','未寄出的信'], lookup:['资料柜','邮编查询簿'], suspects:['调查嫌疑人','六人资料'], notes:['调查记录','侦探笔记'], report:['第一关','第一关调查报告'], reportRetry:['第一关','侦探，再仔细想想！'], summary:['学习回顾','结案总结'], reset:['重新开始','要从头开始吗？'] };
+  const names = { rubyRecovery:['结案报告','红宝石找回来啦！'], victory:['结案报告','🏆 破案成功！'], victoryReset:['重新开始','重新开始'], searchLocation:['第二关 · 搜查地点','红宝石可能在哪儿？'], searchNotReady:['第二关 · 搜查地点','先找齐线索'], searchIncorrect:['第二关 · 再核对一次','再试一次！'], searchSuccess:['第二关 · 搜查地点','解码成功！'], codeLibrary:['第二关 · 书架资料','编码资料库'], ...Object.fromEntries(stage2References.map(ref => [ref.panel, ['第二关 · 编码资料库', ref.title]])), challengeComplete:['第一关完成','挑战一完成！'], story:['案件档案','红宝石失踪案'], identity:['证物 A','残缺身份证复印件'], envelope:['证物 B','未寄出的信'], lookup:['资料柜','邮编查询簿'], suspects:['调查嫌疑人','六人资料'], notes:['调查记录','侦探笔记'], report:['第一关','第一关调查报告'], reportRetry:['第一关','侦探，再仔细想想！'], summary:['学习回顾','结案总结'], reset:['重新开始','要从头开始吗？'] };
   function openPanel(name, { persist = true } = {}) {
     if (!names[name]) return;
     if (['rubyRecovery', 'victory', 'victoryReset'].includes(name) && !state.caseClosed) return;
